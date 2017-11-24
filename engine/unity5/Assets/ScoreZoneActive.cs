@@ -27,7 +27,8 @@ public class ScoreZoneActive : MonoBehaviour {
     {
         m_collider = GetComponent<Collider>();
         // m_cubeMeshRenderer = transform.Find("Cube").gameObject.GetComponent<MeshRenderer>();
-        m_cubeMeshRenderer = subCube.GetComponent<MeshRenderer>();
+        //m_cubeMeshRenderer = subCube.GetComponent<MeshRenderer>();
+        m_cubeMeshRenderer = GameObject.Find("Cube").GetComponent<MeshRenderer>();
         m_scoreZoneSimSceneManager = GameObject.Find("StateMachine").GetComponent<ScoreZoneSimSceneManager>();
         m_dpmRobot = GameObject.Find("StateMachine").GetComponent<DriverPracticeMode>().dpmRobot;
         m_dpm = GameObject.Find("StateMachine").GetComponent<DriverPracticeMode>();
