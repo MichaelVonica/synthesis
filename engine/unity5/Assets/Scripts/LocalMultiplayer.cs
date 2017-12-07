@@ -97,8 +97,6 @@ public class LocalMultiplayer : MonoBehaviour
 
             GetComponent<DriverPracticeMode>().ChangeActiveRobot(index);
         }
-
-
     }
 
     /// <summary>

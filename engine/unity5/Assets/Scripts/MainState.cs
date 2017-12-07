@@ -63,6 +63,8 @@ public class MainState : SimState
 
     public bool IsMetric;
 
+    public int controlIndex = 0;
+
     /// <summary>
     /// Called when the script instance is being initialized.
     /// Initializes the bullet physics environment
@@ -134,7 +136,7 @@ public class MainState : SimState
             awaitingReplay = true;
             LoadReplay(selectedReplay);
         }
-
+        
         //initializes the dynamic camera
         DynamicCameraObject = GameObject.Find("Main Camera");
         dynamicCamera = DynamicCameraObject.AddComponent<DynamicCamera>();
@@ -166,7 +168,7 @@ public class MainState : SimState
         //Spawn a new robot from the same path or switch active robot
         if (!ActiveRobot.IsResetting && DynamicCameraObject.activeSelf)
         {
-            if (Input.GetKeyDown(KeyCode.U) && !MixAndMatchMode.setPresetPanelOpen) LoadRobot(robotPath, ActiveRobot.RobotIsMixAndMatch); 
+            if (Input.GetKeyDown(KeyCode.U) && !MixAndMatchMode.setPresetPanelOpen) LoadRobot(robotPath, ActiveRobot.RobotIsMixAndMatch);
             if (Input.GetKeyDown(KeyCode.Y)) SwitchActiveRobot();
 
         }
@@ -181,7 +183,8 @@ public class MainState : SimState
         }
 
         // Switches to replay mode
-        if (!ActiveRobot.IsResetting && DynamicCameraObject.activeSelf && Input.GetKeyDown(KeyCode.Tab))
+        if (!ActiveRobot.IsResetting && Input.GetKeyDown(KeyCode.Tab))
+        //if (!ActiveRobot.IsResetting && InputControl.GetButtonDown(Controls.buttons[controlIndex].replayMode))
         {
             CollisionTracker.ContactPoints.Add(null);
             StateMachine.Instance.PushState(new ReplayState(fieldPath, CollisionTracker.ContactPoints));
@@ -532,7 +535,7 @@ public class MainState : SimState
             robot.ControlIndex = SpawnedRobots.Count;
             SpawnedRobots.Add(robot);
 
-            if(!robot.InitializeManipulator(manipulatorDirectory, robot.gameObject)) return false;
+            if (!robot.InitializeManipulator(manipulatorDirectory, robot.gameObject)) return false;
             return true;
         }
         return false;
@@ -583,7 +586,6 @@ public class MainState : SimState
     public void BeginRobotReset()
     {
         ActiveRobot.BeginReset();
-
     }
 
     /// <summary>

@@ -475,6 +475,7 @@ namespace Assets.Scripts.FEA
         public override void Update()
         {
             if (Input.GetKeyDown(KeyCode.Tab))
+            //if (InputControl.GetButtonDown(Controls.buttons[controlIndex].replayMode))
                 StateMachine.Instance.PopState();
         }
 
