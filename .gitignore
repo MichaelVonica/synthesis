@@ -10,3 +10,7 @@ tags
 build/*
 *.sdf
 *.VC.db
+
+Replays/
+engine/unity5/Assets/Scene.unity
+engine/unity5/Assets/Scene.meta

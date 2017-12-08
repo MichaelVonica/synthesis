@@ -28,17 +28,17 @@ namespace BxDFieldExporter {
                 case 0: // Box
                     field.colliderType = ColliderType.Box;
                     selectedType = typeof(BoxColliderPropertiesForm);// sets the type to the correct form
-                    this.Height = 400;
+                    Height = 400;
                     break;
                 case 1: // Sphere
                     field.colliderType = ColliderType.Sphere;
                     selectedType = typeof(SphereColliderPropertiesForm);
-                    this.Height = 325;
+                    Height = 325;
                     break;
                 case 2: // Mesh
                     field.colliderType = ColliderType.Mesh;
                     selectedType = typeof(MeshColliderPropertiesForm);
-                    this.Height = 325;
+                    Height = 325;
                     break;
             }
 
@@ -140,7 +140,28 @@ namespace BxDFieldExporter {
         }
 
         private void btnSave_Click(object sender, EventArgs e) {
-            this.Close();
+            Close();
+        }
+
+        /// <summary>
+        /// Override ProcessCmdKey in order to collect escape and enter key input
+        /// </summary>
+        /// <param name="msg"></param>
+        /// <param name="keyData"></param>
+        /// <returns></returns>
+        protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
+        {
+            if (keyData == Keys.Escape)
+            {
+                Close();
+
+            }
+            else if (keyData == Keys.Enter)
+            {
+                Close();
+            }
+
+            return base.ProcessCmdKey(ref msg, keyData);
         }
     }
 }

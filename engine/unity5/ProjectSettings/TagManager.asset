@@ -3,7 +3,12 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 2
-  tags: []
+  tags:
+  - Sensor
+  - ScoreZone
+  - Gamepiece
+  - Gamepiece_Primary
+  - Gamepiece_Secondary
   layers:
   - Default
   - TransparentFX

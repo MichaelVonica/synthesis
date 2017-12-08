@@ -17,13 +17,13 @@ namespace BxDFieldExporter
     {
         //Used to access StandardAddInServer's exposed API
         private Inventor.Application mApplication;
-        private AutomationInterface mAddInInterface;
+        private IAutomationInterface mAddInInterface;
 
         public AddPart()
         {
-            this.Location = new System.Drawing.Point(450, 350);
+            Location = new System.Drawing.Point(450, 350);
             InitializeComponent();
-            this.TopMost = true;
+            TopMost = true;
 
             //Used to access StandardAddInServer's exposed API
             try
@@ -44,42 +44,56 @@ namespace BxDFieldExporter
                 //Looks for our DemoAddin CLSID;
                 if (oAddIn.ClassIdString == "{E50BE244-9F7B-4B94-8F87-8224FABA8CA1}")
                 {
-                    
+
                     //Calls Automation property    
-                    mAddInInterface = (AutomationInterface)oAddIn.Automation;
+                    mAddInInterface = (IAutomationInterface)oAddIn.Automation;
                 }
             }
         }
 
         private void OKButton_OnClick(object sender, EventArgs e)
         {
-            mAddInInterface.setRunOnce(false);
-            this.Close();
+            mAddInInterface.SetDone(true);
+            StandardAddInServer.task.TrySetResult(true);
+            Close();
         }
 
         private void CancelButton_onClick(object sender, EventArgs e)
         {
-            mAddInInterface.setCancel(true);
-            mAddInInterface.setRunOnce(false);
-            this.Close();
+            mAddInInterface.SetCancel(true);
+            StandardAddInServer.task.TrySetResult(true);
+            Close();
         }
+
 
         private void SelectPartsLabel_onClick(object sender, EventArgs e)
         {
-            this.Close();
+            Close();
         }
 
-        private void CancelButton_onClick(object sender, MouseEventArgs e)
+
+        protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
         {
-            mAddInInterface.setCancel(true);
-            mAddInInterface.setRunOnce(false);
-            this.Close();
+            if (keyData == Keys.Escape)
+            {
+                Close();
+            }
+            else if (keyData == Keys.Enter)
+            {
+                Close();
+            }
+
+            return base.ProcessCmdKey(ref msg, keyData);
         }
 
-        private void CancelButton_onClick(object sender, FormClosedEventArgs e)
+        private void ApplyButton_Click(object sender, EventArgs e)
         {
-            mAddInInterface.setCancel(true);
-            mAddInInterface.setRunOnce(false);
+            StandardAddInServer.task.TrySetResult(true);
+        }
+
+        private void okButton_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }

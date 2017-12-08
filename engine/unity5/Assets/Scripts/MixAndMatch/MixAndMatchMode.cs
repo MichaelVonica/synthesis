@@ -1,5 +1,4 @@
-﻿
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -10,10 +9,12 @@ using UnityEngine.UI;
 
 public class MixAndMatchMode : MonoBehaviour
 {
-    
+#region variables
     private GameObject mixAndMatchMode;
-    public static bool isQuickSwapMode = false;
+    private GameObject mixAndMatchModeScript;
+    public static bool isMixAndMatchMode = false;
     private GameObject infoText;
+    private GameObject mecWheelPanel;
 
     //Presets
     private GameObject presetsPanel;
@@ -21,7 +22,8 @@ public class MixAndMatchMode : MonoBehaviour
     [HideInInspector] public List<MaMPreset> presetsList = new List<MaMPreset>();
     private GameObject setPresetPanel;
     private GameObject inputField;
-   
+    private GameObject deletePresetButton;
+
 
     //Wheel options
     private GameObject tractionWheel;
@@ -30,12 +32,13 @@ public class MixAndMatchMode : MonoBehaviour
     private GameObject pneumaticWheel;
     [HideInInspector] public List<GameObject> wheels;
     public static int selectedWheel; //This is public static so that it can be accessed by RNMesh
-  
+
 
     //Drive Base options
     private GameObject defaultDrive;
     private GameObject mecanumDrive;
     private GameObject swerveDrive;
+    private GameObject narrowDrive;
     [HideInInspector] public List<GameObject> bases;
     int selectedDriveBase;
     public static bool isMecanum = false;
@@ -43,6 +46,8 @@ public class MixAndMatchMode : MonoBehaviour
     //Manipulator Options
     private GameObject noManipulator;
     private GameObject syntheClaw;
+    private GameObject syntheShot;
+    private GameObject lift;
     [HideInInspector] public List<GameObject> manipulators;
     int selectedManipulator;
     public static bool hasManipulator = true;
@@ -50,15 +55,19 @@ public class MixAndMatchMode : MonoBehaviour
     //Scroll buttons
     private GameObject wheelRightScroll;
     private GameObject wheelLeftScroll;
+    private GameObject driveBaseRightScroll;
+    private GameObject driveBaseLeftScroll;
+    private GameObject manipulatorRightScroll;
+    private GameObject manipulatorLeftScroll;
     private GameObject presetRightScroll;
     private GameObject presetLeftScroll;
-
+#endregion
     // Use this for initialization
     void Start()
     {
         FindAllGameObjects();
         StartMixAndMatch();
-        PlayerPrefs.SetInt("MixAndMatch", 0); //0 is true, 1 is false
+        PlayerPrefs.SetInt("mixAndMatch", 1); //0 is false, 1 is true
     }
 
     // Update is called once per frame
@@ -70,20 +79,20 @@ public class MixAndMatchMode : MonoBehaviour
     void FindAllGameObjects()
     {
         mixAndMatchMode = GameObject.Find("MixAndMatchMode");
+        mixAndMatchModeScript = GameObject.Find("MixAndMatchModeScript");
         infoText = GameObject.Find("PartDescription");
         Text txt = infoText.GetComponent<Text>();
         presetsPanel = GameObject.Find("PresetPanel");
         setPresetPanel = GameObject.Find("SetPresetPanel");
         inputField = GameObject.Find("InputField");
-        
+        deletePresetButton = GameObject.Find("DeleteButton");
+        mecWheelPanel = Resources.FindObjectsOfTypeAll<GameObject>().Where(x => x.name.Equals("MecWheelLabel")).First();
 
         //Find wheel objects
         tractionWheel = GameObject.Find("TractionWheel");
         colsonWheel = GameObject.Find("ColsonWheel");
         omniWheel = GameObject.Find("OmniWheel");
         pneumaticWheel = Resources.FindObjectsOfTypeAll<GameObject>().Where(x => x.name.Equals("PneumaticWheel")).First();
-       
-       
         //Put all the wheels in the wheels list
         wheels = new List<GameObject> { tractionWheel, colsonWheel, omniWheel, pneumaticWheel };
 
@@ -92,24 +101,32 @@ public class MixAndMatchMode : MonoBehaviour
         defaultDrive = GameObject.Find("DefaultBase");
         mecanumDrive = GameObject.Find("MecanumBase");
         swerveDrive = GameObject.Find("SwerveBase");
+        narrowDrive = Resources.FindObjectsOfTypeAll<GameObject>().Where(x => x.name.Equals("NarrowBase")).First();
         //Put all the drive bases in the bases list
-        bases = new List<GameObject> { defaultDrive, mecanumDrive, swerveDrive };
+        bases = new List<GameObject> { defaultDrive, mecanumDrive, swerveDrive, narrowDrive };
 
         //Find manipulator objects
         noManipulator = GameObject.Find("NoManipulator");
         syntheClaw = GameObject.Find("SyntheClaw");
+        syntheShot = GameObject.Find("SyntheShot");
+        lift = Resources.FindObjectsOfTypeAll<GameObject>().Where(x => x.name.Equals("Lift")).First();
         //Put all the manipulators in the manipulators list
-        manipulators = new List<GameObject> { noManipulator, syntheClaw };
+        manipulators = new List<GameObject> { noManipulator, syntheClaw, syntheShot, lift };
 
         //Find all the scroll buttons
         wheelRightScroll = GameObject.Find("WheelRightScroll");
-        wheelLeftScroll = GameObject.Find("WheelLeftScroll");
+        wheelLeftScroll = Resources.FindObjectsOfTypeAll<GameObject>().Where(x => x.name.Equals("WheelLeftScroll")).First(); //GameObject.Find("WheelLeftScroll");
+        driveBaseRightScroll = GameObject.Find("BaseRightScroll");
+        driveBaseLeftScroll = GameObject.Find("BaseLeftScroll");
+        manipulatorRightScroll = GameObject.Find("ManipulatorRightScroll");
+        manipulatorLeftScroll = GameObject.Find("ManipulatorLeftScroll");
         presetRightScroll = GameObject.Find("PresetRightScroll");
         presetLeftScroll = GameObject.Find("PresetLeftScroll");
-
-        if(this.gameObject.name == "MixAndMatchModeScript")
+        
+        if (this.gameObject.name == "MixAndMatchModeScript")
         {
             this.gameObject.GetComponent<MaMScroller>().FindAllGameObjects();
+            this.gameObject.GetComponent<MaMInfoText>().FindAllGameObjects();
         }
     }
 
@@ -118,15 +135,21 @@ public class MixAndMatchMode : MonoBehaviour
     /// </summary>
     public void StartMixAndMatch()
     {
-        if(this.gameObject.name == "MixAndMatchModeScript")
-        {   
+        if (this.gameObject.name == "MixAndMatchModeScript")
+        {
             wheelLeftScroll.SetActive(false);
+            driveBaseLeftScroll.SetActive(false);
+            manipulatorLeftScroll.SetActive(false);
             presetLeftScroll.SetActive(false);
             presetRightScroll.SetActive(false);
 
+            mecWheelPanel.SetActive(false);
+
             setPresetPanel.SetActive(false);
+
+            deletePresetButton.SetActive(false);
             //XMLManager.ins.itemDB.xmlList.Clear();
-           
+
             String presetFile = Application.persistentDataPath + "/item_data.xml";
             if (File.Exists(presetFile))
             {
@@ -140,6 +163,9 @@ public class MixAndMatchMode : MonoBehaviour
             SelectDriveBase(0);
             SelectManipulator(0);
 
+            this.gameObject.GetComponent<MaMScroller>().ResetFirsts();
+            this.gameObject.GetComponent<MaMScroller>().FindAllGameObjects();
+            this.gameObject.GetComponent<MaMInfoText>().FindAllGameObjects();
             // Sets info panel to blank
             Text txt = infoText.GetComponent<Text>();
             txt.text = "";
@@ -149,20 +175,94 @@ public class MixAndMatchMode : MonoBehaviour
     /// <summary>
     /// Sets the destination paths of the selected field, robot base and manipulator to be used by MainState. Starts the simulation in Quick Swap Mode. 
     /// </summary>
-    public void StartSwapSim()
+    public void StartMaMSim()
     {
-        PlayerPrefs.SetString("simSelectedField", "C:\\Program Files (x86)\\Autodesk\\Synthesis\\Synthesis\\Fields\\2014 Aerial Assist");
-        PlayerPrefs.SetString("simSelectedFieldName", "2014 Aerial Assist");
-        PlayerPrefs.SetString("simSelectedRobot", GetDriveBase(selectedDriveBase));
+        PlayerPrefs.SetString("simSelectedRobot", mixAndMatchModeScript.GetComponent<MaMGetters>().GetDriveBase(selectedDriveBase));
         PlayerPrefs.SetString("simSelectedRobotName", "DriveBase2557");
-        PlayerPrefs.SetString("simSelectedManipulator", GetManipulator(selectedManipulator));
+        PlayerPrefs.SetString("simSelectedManipulator", mixAndMatchModeScript.GetComponent<MaMGetters>().GetManipulator(selectedManipulator));
+        PlayerPrefs.SetString("simSelectedWheel", mixAndMatchModeScript.GetComponent<MaMGetters>().GetWheel(selectedWheel));
+        PlayerPrefs.SetFloat("wheelFriction", mixAndMatchModeScript.GetComponent<MaMGetters>().GetWheelFriction(selectedWheel));
+        PlayerPrefs.SetFloat("wheelMass", mixAndMatchModeScript.GetComponent<MaMGetters>().GetWheelMass(selectedWheel));
+        PlayerPrefs.SetFloat("wheelRadius", mixAndMatchModeScript.GetComponent<MaMGetters>().GetWheelRadius(selectedWheel));
         PlayerPrefs.Save();
-        isQuickSwapMode = true;
-        SceneManager.LoadScene("QuickSwap");
+        isMixAndMatchMode = true;
+        SceneManager.LoadScene("mixAndMatch");
     }
 
+    #region Change or Add MaM Robot
+    /// <summary>
+    /// Called when the "next" button on the MaM panel is clicked within the simulator. 
+    /// Determines if the user wants to change the active robot or add a robot for local multiplayer and calls the correct function.
+    /// </summary>
+    bool changeMaMRobot = true;
+    public void ChangeOrAddMaMRobot()
+    {
+        if (changeMaMRobot)
+        {
+            ChangeMaMRobot();
+        } else
+        {
+            AddMaMRobot();
+        }
+    }
+
+    public void ChangeMaMClicked()
+    {
+        changeMaMRobot = true;
+    }
+
+    public void AddMaMClicked()
+    {
+        changeMaMRobot = false;
+    }
+
+    /// <summary>
+    /// When the user changes wheels/drive bases/manipulators within the simulator, changes the robot.
+    /// </summary>
+    void ChangeMaMRobot()
+    {
+        int robotHasManipulator = PlayerPrefs.GetInt("hasManipulator"); //0 is false, 1 is true
+
+        string baseDirectory = mixAndMatchModeScript.GetComponent<MaMGetters>().GetDriveBase(selectedDriveBase);
+        string manipulatorDirectory = mixAndMatchModeScript.GetComponent<MaMGetters>().GetManipulator(selectedManipulator);
+
+        PlayerPrefs.SetString("simSelectedReplay", string.Empty);
+        PlayerPrefs.SetString("simSelectedRobot", baseDirectory);
+        PlayerPrefs.SetString("simSelectedManipulator", manipulatorDirectory);
+        PlayerPrefs.SetString("simSelectedWheel", mixAndMatchModeScript.GetComponent<MaMGetters>().GetWheel(selectedWheel));
+        PlayerPrefs.SetFloat("wheelFriction", mixAndMatchModeScript.GetComponent<MaMGetters>().GetWheelFriction(selectedWheel));
+        PlayerPrefs.SetFloat("wheelMass", mixAndMatchModeScript.GetComponent<MaMGetters>().GetWheelMass(selectedWheel));
+        PlayerPrefs.SetFloat("wheelRadius", mixAndMatchModeScript.GetComponent<MaMGetters>().GetWheelRadius(selectedWheel));
+
+        GameObject stateMachine = GameObject.Find("StateMachine");
+
+        stateMachine.GetComponent<SimUI>().MaMChangeRobot(baseDirectory, manipulatorDirectory, robotHasManipulator);
+    }
+
+    /// <summary>
+    /// When the user adds a MaMRobot in  multiplayer mode, sets the player prefs to file paths of robot parts
+    /// </summary>
+    void AddMaMRobot()
+    {
+        string baseDirectory = mixAndMatchModeScript.GetComponent<MaMGetters>().GetDriveBase(selectedDriveBase);
+        string manipulatorDirectory = mixAndMatchModeScript.GetComponent<MaMGetters>().GetManipulator(selectedManipulator);
+
+        PlayerPrefs.SetString("simSelectedReplay", string.Empty);
+        PlayerPrefs.SetString("simSelectedRobot", baseDirectory);
+        PlayerPrefs.SetString("simSelectedManipulator", manipulatorDirectory);
+        PlayerPrefs.SetString("simSelectedWheel", mixAndMatchModeScript.GetComponent<MaMGetters>().GetWheel(selectedWheel));
+        PlayerPrefs.SetFloat("wheelFriction", mixAndMatchModeScript.GetComponent<MaMGetters>().GetWheelFriction(selectedWheel));
+        PlayerPrefs.SetFloat("wheelMass", mixAndMatchModeScript.GetComponent<MaMGetters>().GetWheelMass(selectedWheel));
+        PlayerPrefs.SetFloat("wheelRadius", mixAndMatchModeScript.GetComponent<MaMGetters>().GetWheelRadius(selectedWheel));
+        int robotHasManipulator = PlayerPrefs.GetInt("hasManipulator"); //0 is false, 1 is true
+        GameObject stateMachine = GameObject.Find("StateMachine");
+
+        stateMachine.GetComponent<LocalMultiplayer>().AddMaMRobot(baseDirectory, manipulatorDirectory, robotHasManipulator);
+    }
+#endregion
+   
     #region Presets
-    
+
     /// <summary>
     /// When the user enters the name for a preset, creates a MaMPreset object with the name and selected parts and adds it to the list.
     /// Also creates a GameObject clone of the preset prefab and adds it to the presetClones list.
@@ -171,7 +271,6 @@ public class MixAndMatchMode : MonoBehaviour
     {
         String name = "";
         if (inputField.GetComponent<InputField>().text.Length > 0) name = inputField.GetComponent<InputField>().text;
-        Debug.Log("SetPresetName to " + name);
         XMLManager.ins.itemDB.xmlList.Add(new MaMPreset(selectedWheel, selectedDriveBase, selectedManipulator, name));
 
         XMLManager.ins.SaveItems();
@@ -190,10 +289,9 @@ public class MixAndMatchMode : MonoBehaviour
         int value = presetClones.Count - 1;
         Button buttonCtrl = clone.GetComponent<Button>();
         buttonCtrl.onClick.AddListener(() => SelectPresets(value));
-        Debug.Log("Set Preset name value: " + value);
 
         Text txt = infoText.GetComponent<Text>();
-        txt.text = XMLManager.ins.itemDB.xmlList[presetClones.Count].GetName();
+        txt.text = XMLManager.ins.itemDB.xmlList[presetClones.Count - 1].GetName();
 
     }
 
@@ -204,8 +302,6 @@ public class MixAndMatchMode : MonoBehaviour
     /// <param name="value"></param>
     public void SelectPresets(int value)
     {
-        Debug.Log("Select presets: " + value);
-        Debug.Log("List size: " + XMLManager.ins.itemDB.xmlList.Count);
         SelectWheel(XMLManager.ins.itemDB.xmlList[value].GetWheel());
         SelectDriveBase(XMLManager.ins.itemDB.xmlList[value].GetDriveBase());
         SelectManipulator(XMLManager.ins.itemDB.xmlList[value].GetManipulator(), "preset");
@@ -214,14 +310,36 @@ public class MixAndMatchMode : MonoBehaviour
         txt.text = XMLManager.ins.itemDB.xmlList[value].GetName();
 
         lastSelectedPreset = value;
+
+        deletePresetButton.SetActive(true);
     }
 
     public void DeletePreset()
     {
         XMLManager.ins.itemDB.xmlList.RemoveAt(lastSelectedPreset);
-        Destroy(presetClones[lastSelectedPreset]);
-        presetClones.RemoveAt(lastSelectedPreset);
-        
+        XMLManager.ins.SaveItems();
+
+        int count = presetClones.Count;
+        for (int i = 0; i < count; i++)
+        {
+            Destroy(presetClones[0]);
+            presetClones.RemoveAt(0);
+        }
+
+        MaMScroller.firstPreset = 0;
+
+        XMLManager.ins.LoadItems();
+        LoadPresets();
+
+        deletePresetButton.SetActive(false);
+        presetLeftScroll.SetActive(false);
+        presetRightScroll.SetActive(false);
+        if (presetClones.Count > 3) presetRightScroll.SetActive(true);
+    }
+
+    public void HidePresetButton()
+    {
+        deletePresetButton.SetActive(false);
     }
 
     /// <summary>
@@ -231,6 +349,7 @@ public class MixAndMatchMode : MonoBehaviour
     /// </summary>
     public void LoadPresets()
     {
+
         //Loads the first three presets
         for (int i = 0; i < 3 && i < XMLManager.ins.itemDB.xmlList.Count; i++)
         {
@@ -257,35 +376,6 @@ public class MixAndMatchMode : MonoBehaviour
             Button buttonCtrl = clone.GetComponent<Button>();
             buttonCtrl.onClick.AddListener(() => SelectPresets(value));
         }
-        
-    }
-
-    /// <summary>
-    /// Creates a MaMPreset object and adds it to the presetsList. The MaMPreset object contains values associated with the preset, such as the wheel.
-    /// </summary>
-    public void CreatePreset(int wheel, int driveBase, int manipulator, String name)
-    {
-        XMLManager.ins.SaveItems();
-        XMLManager.ins.LoadItems();
-
-        XMLManager.ins.itemDB.xmlList.Add(new MaMPreset(selectedWheel, selectedDriveBase, selectedManipulator, name));
-
-        int clonePosition = (presetClones.Count < 3) ? presetClones.Count : 0;
-        GameObject clone = presetsPanel.GetComponent<MaMPresetMono>().CreateClone(XMLManager.ins.itemDB.xmlList[presetClones.Count], clonePosition);
-        clone.GetComponent<Text>().text = XMLManager.ins.itemDB.xmlList[presetClones.Count].GetName();
-        presetClones.Add(clone);
-        if (presetClones.Count > 3) clone.SetActive(false);
-
-        //Creates a listener for OnClick
-        int value = presetClones.Count - 1;
-        Button buttonCtrl = clone.GetComponent<Button>();
-        buttonCtrl.onClick.AddListener(() => SelectPresets(value));
-
-        Text txt = infoText.GetComponent<Text>();
-        txt.text = "";
-
-        XMLManager.ins.SaveItems();
-
 
     }
 
@@ -294,65 +384,8 @@ public class MixAndMatchMode : MonoBehaviour
         setPresetPanel.SetActive(!setPresetPanel.activeSelf);
     }
 
-#endregion
-    #region InfoText
-    public void SetWheelInfoText(int wheel)
-    {
-        Text txt = infoText.GetComponent<Text>();
-        txt.text = "";
-        switch (wheel)
-        {
-            case 0: //Traction Wheel             
-                txt.text = "Traction Wheel and Tread \n\nDimensions: 6\" diameter \nFriction coefficent: 1.1 \nMass: 0.43 kg";
-                break;
-            case 1: //Colson Wheel           
-                txt.text = "Colson Performa Wheel \n\nDimensions: 4\" x 1.5\", 1/2\" Hex bore \nFriction coefficient: 1.0 \nMass: 0.24";
-                break;
-            case 2: //Omni Wheel            
-                txt.text = "Omni Wheel \n\nDimensions: 6\" diameter \nFriction coefficent: 1.1 \nMass: 0.42 kg";
-                break;
-            case 3: //Pneumatic Wheel
-                txt.text = "Pneumatic Wheel \n\nDimensions: 8\" x 1.8\" \nFriction coefficient: 0.93 \nMass: 0.51kg";
-                break;
-        }
-
-    }
-
-    public void SetBaseInfoText(int driveBase)
-    {
-        Text txt = infoText.GetComponent<Text>();
-        txt.text = "";
-        switch (driveBase)
-        {
-            case 0: //Default Drive          
-                txt.text = "Default Drive\n \nNormal drive train  ";
-                break;
-            case 1: //Mecanum Drive       
-                txt.text = "Mecanum Drive \n\nAllows robot to strafe from horizontally. \nUse left/right arrow keys to strafe. Use O and P to rotate.";
-                break;
-            case 2: //Swerve Drive           
-                txt.text = "Swerve Drive \n\nAllows wheels to swivel. \nUse controls for PWM port 2 to swivel wheels"; //Check if it is PWM port 2
-                break;
-        }
-
-    }
-
-    public void SetManipulatorInfoText(int manipulator)
-    {
-        Text txt = infoText.GetComponent<Text>();
-        txt.text = "";
-        switch (manipulator)
-        {
-            case 0: //no manipulator      
-                txt.text = "No Manipulator";
-                break;
-            case 1: //syntheclaw      
-                txt.text = "Syntheclaw \n\nIdeal for handling Yoga Balls";
-                break;
-        }
-
-    }
     #endregion
+
     #region Selecters
     /// <summary>
     /// Selects a wheel, as referenced by its index in the wheels list.
@@ -370,7 +403,7 @@ public class MixAndMatchMode : MonoBehaviour
 
         //selects the wheel that is clicked
         SetColor(wheels[wheel], purple);
-        SetWheelInfoText(wheel);
+        this.gameObject.GetComponent<MaMInfoText>().SetWheelInfoText(wheel);
         selectedWheel = wheel;
     }
 
@@ -390,9 +423,14 @@ public class MixAndMatchMode : MonoBehaviour
 
         //selects the wheel that is clicked
         SetColor(bases[driveBase], purple);
-        SetBaseInfoText(driveBase);
+        this.gameObject.GetComponent<MaMInfoText>().SetBaseInfoText(driveBase);
         selectedDriveBase = driveBase;
-        if (selectedDriveBase == 1) isMecanum = true;
+        mecWheelPanel.SetActive(false);
+        if (selectedDriveBase == 1)
+        {
+            isMecanum = true;
+            mecWheelPanel.SetActive(true);
+        }
     }
 
     public static bool GetMecanum()
@@ -416,8 +454,8 @@ public class MixAndMatchMode : MonoBehaviour
 
         //selects the manipulator that is clicked
         SetColor(manipulators[manipulator], purple);
-        SetManipulatorInfoText(manipulator);
-        hasManipulator = (manipulator == 0) ? false : true;
+        this.gameObject.GetComponent<MaMInfoText>().SetManipulatorInfoText(manipulator);
+        //hasManipulator = (manipulator == 0) ? false : true;
         selectedManipulator = manipulator;
     }
 
@@ -447,83 +485,6 @@ public class MixAndMatchMode : MonoBehaviour
     public void SetColor(GameObject part, Color color)
     {
         part.GetComponent<Image>().color = color;
-    }
-    #endregion
-    #region Getters
-    ///<summary>
-    ///Returns the string destination path of a drive base.
-    /// </summary>
-    /// <param name="baseID"></param>
-    public string GetDriveBase(int baseID)
-    {
-        switch (baseID)
-        {
-            case 0: //Default Drive Base
-                return (System.Environment.GetFolderPath(System.Environment.SpecialFolder.MyDocuments) + "\\MixAndMatch\\DriveBases\\DriveBase2557");
-            case 1: //Mech Drive Base
-                return (System.Environment.GetFolderPath(System.Environment.SpecialFolder.MyDocuments) + "\\MixAndMatch\\DriveBases\\SyntheMac");
-            case 2: //Swerve Drive
-                return (System.Environment.GetFolderPath(System.Environment.SpecialFolder.MyDocuments) + "\\MixAndMatch\\DriveBases\\SyntheSwerve");
-        }
-
-        return (System.Environment.GetFolderPath(System.Environment.SpecialFolder.MyDocuments) + "\\MixAndMatch\\DriveBases\\DriveBase2557");
-    }
-
-    /// <summary>
-    /// Returns the string destination path of a manipulator.
-    /// </summary>
-    /// <param name="manipulatorID"></param>
-    public string GetManipulator(int manipulatorID)
-    {
-        switch (manipulatorID)
-        {
-            case 0: //No manipulator
-                hasManipulator = false;
-                break;
-            case 1: //SyntheClaw
-                hasManipulator = true;
-                return (System.Environment.GetFolderPath(System.Environment.SpecialFolder.MyDocuments) + "\\MixAndMatch\\Manipulators\\Claw");
-        }
-        return (System.Environment.GetFolderPath(System.Environment.SpecialFolder.MyDocuments) + "\\MixAndMatch\\Manipulators\\Claw");
-    }
-
-    ///<summary> 
-    /// Returns the coefficient of friction value associated with a wheel. The coeffecient of friction is taken from VexPro's website. 
-    /// These may need to be adjusted.
-    /// </summary>
-    public static float GetWheelFriction(int wheelID)
-    {
-        switch (wheelID)
-        {
-            case 0: //traction wheel
-                return 1.1f;
-            case 1: //colson wheel
-                return 1.0f;
-            case 2: //omni wheel
-                return 1.1f;
-            case 3: //pneumatic wheel
-                return 0.93f;
-        }
-        return 1.0f;
-    }
-
-    ///<summary>
-    ///Returns the wheel mass associated with a wheel. Masses are taken off Vex's website and converted to kilograms.
-    /// </summary>
-    public static float GetWheelMass(int wheelID)
-    {
-        switch (wheelID)
-        {
-            case 0: //traction wheel
-                return 0.43f;
-            case 1: //colson wheel
-                return 0.24f;
-            case 2: //omni wheel
-                return 0.42f;
-            case 3: //pneumatic wheel
-                return 0.51f;
-        }
-        return 1.0f;
     }
     #endregion
 }

@@ -66,7 +66,7 @@ public class DriverPracticeRobot : MonoBehaviour
     private List<Color> hoveredColors = new List<Color>();
     private Color hoverColor = new Color(1, 1, 0, 0.1f);
 
-    //for gamepiece spawn and goal customizability
+    //for gamepiece spawn and goal customizability (2550 Features)
     private Scoreboard scoreboard; // Given to newly created goals for adding points
     private List<UnityEngine.Vector3> gamepieceSpawn;
     private List<List<UnityEngine.Vector3>> gamepieceGoals;
@@ -80,6 +80,13 @@ public class DriverPracticeRobot : MonoBehaviour
     public int settingGamepieceGoalIndex = 0; // Index of goal being edited
     public bool settingGamepieceGoalVertical = false;
     private DynamicCamera.CameraState lastCameraState;
+
+
+    //for gamepiece spawning customizability 2898
+    //public List<UnityEngine.Vector3> gamepieceSpawn { get; private set; } // Need outside access for scoring
+    //private GameObject spawnIndicator;
+    //public int settingSpawn = 0; //0 if not, 1 if editing primary, and 2 if editing secondary
+    //private DynamicCamera.CameraState lastCameraState;
 
     /// <summary>
     /// If configuration file exists, loads information and auto-configures robot.
@@ -105,7 +112,7 @@ public class DriverPracticeRobot : MonoBehaviour
         releaseVelocityVector.Add(UnityEngine.Vector3.zero);
 
         intakeNode = new List<GameObject>();
-        intakeNode.Add(transform.GetChild(0).gameObject); //We want these to be null so that the user must configure it to a node first.
+        intakeNode.Add(transform.GetChild(0).gameObject);
         intakeNode.Add(transform.GetChild(0).gameObject);
 
         releaseNode = new List<GameObject>();
@@ -121,7 +128,7 @@ public class DriverPracticeRobot : MonoBehaviour
         secondaryHeld = new List<GameObject>();
         objectsHeld.Add(primaryHeld);
         objectsHeld.Add(secondaryHeld);
-        
+
         gamepieceNames = new List<string>();
         gamepieceNames.Add("NOT CONFIGURED");
         gamepieceNames.Add("NOT CONFIGURED");
@@ -156,7 +163,7 @@ public class DriverPracticeRobot : MonoBehaviour
         gamepieceGoals = new List<List<UnityEngine.Vector3>>();
         gamepieceGoals.Add(new List<UnityEngine.Vector3>());
         gamepieceGoals.Add(new List<UnityEngine.Vector3>());
-        
+
         gamepieceGoalSizes = new List<List<float>>();
         gamepieceGoalSizes.Add(new List<float>());
         gamepieceGoalSizes.Add(new List<float>());
@@ -169,32 +176,30 @@ public class DriverPracticeRobot : MonoBehaviour
         gamepieceGoalDesc.Add(new List<string>());
         gamepieceGoalDesc.Add(new List<string>());
 
+
+        //Setting up the trajectory renderers
         drawnTrajectory = new List<LineRenderer>();
-        drawnTrajectory.Add(gameObject.AddComponent<LineRenderer>());
-        GameObject secondLine = new GameObject();
-        drawnTrajectory.Add(secondLine.AddComponent<LineRenderer>());
-        foreach (LineRenderer line in drawnTrajectory)
-        {
-            line.startWidth = 0.2f;
-            line.material = Resources.Load("Materials/Projection") as Material;
-            line.enabled = false;
-        }
-        drawnTrajectory[0].startColor = Color.blue;
-        drawnTrajectory[0].endColor = Color.cyan;
-        drawnTrajectory[1].startColor = Color.red;
-        drawnTrajectory[1].endColor = Color.magenta;
+        GameObject firstLine = GameObject.Find("DrawnTrajectory1");
+        drawnTrajectory.Add(firstLine.GetComponent<LineRenderer>());
+        GameObject secondLine = GameObject.Find("DrawnTrajectory2");
+        drawnTrajectory.Add(secondLine.GetComponent<LineRenderer>());
 
         displayTrajectories = new List<bool>();
         displayTrajectories.Add(false);
         displayTrajectories.Add(false);
 
+        //After initializing all the lists and variables, try to load from the robot directory.
         Load(robotDirectory);
+
+        modeEnabled = true;
 
         GenerateGamepieceGoalColliders(0);
         GenerateGamepieceGoalColliders(1);
     }
 
-    // Update is called once per frame
+    /// <summary>
+    /// Update is called once per frame to process controls, tick the highlight timer, and draw trajectories
+    /// </summary>
     void Update()
     {
         if (modeEnabled)
@@ -230,10 +235,6 @@ public class DriverPracticeRobot : MonoBehaviour
                 if (drawnTrajectory[i].enabled) drawnTrajectory[i].enabled = false;
             }
         }
-    }
-
-    private void OnGUI()
-    {
     }
 
     #region Gamepiece Manipulation Functions
@@ -324,8 +325,9 @@ public class DriverPracticeRobot : MonoBehaviour
         }
     }
 
-
-
+    /// <summary>
+    /// Converts a velocity from a scalar speed and two angles into a Unity Vector3 format
+    /// </summary>
     private UnityEngine.Vector3 VelocityToVector3(float speed, float horAngle, float verAngle)
     {
         UnityEngine.Quaternion horVector;
@@ -428,7 +430,7 @@ public class DriverPracticeRobot : MonoBehaviour
         {
 
         }
-        
+
         // Regenerate goal colliders
         GenerateGamepieceGoalColliders(0);
         GenerateGamepieceGoalColliders(1);
@@ -458,7 +460,7 @@ public class DriverPracticeRobot : MonoBehaviour
         {
             try //In case the game piece somehow doens't exist in the scene
             {
-                // Enable original gamepiece for cloning, then return to original state
+                // Enable original gamepiece for cloning, then return to original state 2550
                 bool originalActiveState = gamepieceOriginals[index].activeSelf;
                 gamepieceOriginals[index].SetActive(true);
                 GameObject gameobject = Instantiate(gamepieceOriginals[index].GetComponentInParent<BRigidBody>().gameObject, gamepieceSpawn[index], UnityEngine.Quaternion.identity);
@@ -467,6 +469,24 @@ public class DriverPracticeRobot : MonoBehaviour
                 gameobject.GetComponent<BRigidBody>().collisionFlags = BulletSharp.CollisionFlags.None;
                 gameobject.GetComponent<BRigidBody>().velocity = UnityEngine.Vector3.zero;
                 spawnedGamepieces[index].Add(gameobject);
+
+                //2898 Features
+                GameObject gameobject2898 = Instantiate(AuxFunctions.FindObject(gamepieceNames[index]).GetComponentInParent<BRigidBody>().gameObject, gamepieceSpawn[index], UnityEngine.Quaternion.identity);
+                gameobject2898.name = gamepieceNames[index] + "(Clone)";
+                gameobject2898.GetComponent<BRigidBody>().collisionFlags = BulletSharp.CollisionFlags.None;
+                gameobject2898.GetComponent<BRigidBody>().velocity = UnityEngine.Vector3.zero;
+                gameobject2898.tag = "Gamepiece_" + ((index == 0) ? "Primary" : "Secondary"); // Tagging so we can use it with the scoring area
+                gameobject2898.GetComponent<GamePieceRememberSpawnParams>().PieceType = index; // allow us to easily reinstantiate from other scripts
+
+                // gameobject.GetComponent<SphereCollider>().isTrigger = true;
+                // gameobject.transform.GetChild(0).gameObject.AddComponent<MeshCollider>();
+                // gameobject.transform.GetChild(0).gameObject.GetComponent<MeshCollider>().isTrigger = true;
+                // gameobject.transform.GetChild(0).gameObject.GetComponent<MeshCollider>().inflateMesh = true;
+                // gameobject.transform.GetChild(0).gameObject.GetComponent<MeshCollider>().convex = true;
+                // gameobject.transform.GetChild(0).gameObject.GetComponent<MeshCollider>().sharedMesh =
+                //     gameobject.transform.GetChild(0).gameObject.GetComponent<MeshFilter>().mesh;
+
+                spawnedGamepieces[index].Add(gameobject2898);
             }
             catch
             {
@@ -487,6 +507,14 @@ public class DriverPracticeRobot : MonoBehaviour
             {
                 Destroy(g);
             }
+        }
+    }
+
+    public void RemoveGamepiece(GameObject g)
+    {
+        for (int i = 0; i < spawnedGamepieces.Count; i++)
+        {
+            if (spawnedGamepieces[i].Contains(g)) spawnedGamepieces[i].Remove(g);
         }
     }
 
@@ -741,7 +769,7 @@ public class DriverPracticeRobot : MonoBehaviour
             else
             {
                 DynamicCamera.SateliteState satellite = ((DynamicCamera.SateliteState)Camera.main.transform.GetComponent<DynamicCamera>().cameraState);
-                
+
                 if (Input.GetKey(KeyCode.LeftArrow)) satellite.rotationVector += UnityEngine.Vector3.up * 1f;
                 if (Input.GetKey(KeyCode.RightArrow)) satellite.rotationVector += UnityEngine.Vector3.down * 1f;
                 if (Input.GetKey(KeyCode.UpArrow)) goalIndicator.transform.position += UnityEngine.Vector3.up * 0.03f;
@@ -1075,6 +1103,9 @@ public class DriverPracticeRobot : MonoBehaviour
     }
     #endregion
 
+    /// <summary>
+    /// Saves all the configured values into a text file for future access
+    /// </summary>
     public void Save()
     {
         string filePath = PlayerPrefs.GetString("simSelectedRobot");
@@ -1132,6 +1163,10 @@ public class DriverPracticeRobot : MonoBehaviour
         Debug.Log("Save successful!");
     }
 
+    /// <summary>
+    /// Tries to load a text file from a set directory. If the file exists, sets the robot's configuration to match the file contents.
+    /// </summary>
+    /// <param name="robotDirectory"></param>
     public void Load(string robotDirectory)
     {
         string filePath = robotDirectory + "\\dpmConfig.txt";
@@ -1192,7 +1227,7 @@ public class DriverPracticeRobot : MonoBehaviour
                         gamepieceNames[index] = line;
                 }
                 else if (gamepieceOriginals[index] != null) // If gamepiece doesn't exist, don't import configuration of it.
-                { 
+                {
                     if (counter == 2)
                         gamepieceSpawn[index] = DeserializeVector3Array(line);
                     else if (counter == 3)
@@ -1220,6 +1255,11 @@ public class DriverPracticeRobot : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Converts a line reading "float1|float2|float3" into Vector3 with the 3 float values as it's x,y,z componets respectively.
+    /// </summary>
+    /// <param name="aData">the line to deserialize</param>
+    /// <returns>the result vector 3</returns>
     public static UnityEngine.Vector3 DeserializeVector3Array(string aData)
     {
         UnityEngine.Vector3 result = new UnityEngine.Vector3(0, 0, 0);
@@ -1230,6 +1270,12 @@ public class DriverPracticeRobot : MonoBehaviour
         result = new UnityEngine.Vector3(float.Parse(values[0]), float.Parse(values[1]), float.Parse(values[2]));
         return result;
     }
+
+    /// <summary>
+    /// Converts a line reading "float1|float2|float3" into a float array with those 3 values.
+    /// </summary>
+    /// <param name="aData">the line to deserialize</param>
+    /// <returns>the result float array</returns>
     public static float[] DeserializeArray(string aData)
     {
         float[] result = new float[3];
@@ -1243,6 +1289,10 @@ public class DriverPracticeRobot : MonoBehaviour
         return result;
     }
 
+    /// <summary>
+    /// Receives the user input and processes various functions based on input
+    /// The processingIndex variable is alternated between to ensure that the primary and secondary controls do not have precedent over the other.
+    /// </summary>
     private void ProcessControls()
     {
         if (Robot.ControlsEnabled)
@@ -1309,5 +1359,10 @@ public class DriverPracticeRobot : MonoBehaviour
             if ((InputControl.GetButtonDown(Controls.buttons[0].spawnPrimary))) SpawnGamepiece(0);
             if ((InputControl.GetButtonDown(Controls.buttons[0].spawnPrimary))) SpawnGamepiece(1);
         }
+    }
+
+    private void OnDestroy()
+    {
+        modeEnabled = false;
     }
 }

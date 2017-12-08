@@ -6,7 +6,7 @@ public class MaMPresetMono : MonoBehaviour {
     public GameObject preset;
     public Transform parent;
 
-    List<Vector2> positions = new List<Vector2>(new Vector2[] { new Vector2(450, -40), new Vector2(700, -40), new Vector2(900, -40)});
+    List<Vector2> positions = new List<Vector2>(new Vector2[] { new Vector2(-65, 0), new Vector2(125, 0), new Vector2(315, 0)});
     // Use this for initialization
     void Start () {
         
