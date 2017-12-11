@@ -5571,7 +5571,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 954008277}
+      - m_Target: {fileID: 0}
         m_MethodName: toLink
         m_Mode: 1
         m_Arguments:
@@ -13754,9 +13754,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 469202155}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5acd84d5d3283d14191775f481f0922b, type: 3}
+  m_Script: {fileID: 11500000, guid: 66649da1359b37041b20df9e105bee7f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  robotCameraList: []
+  tempCameraList: []
+  SelectedNode: {fileID: 0}
 --- !u!1 &470925453
 GameObject:
   m_ObjectHideFlags: 0
@@ -24564,7 +24567,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 954008277}
+      - m_Target: {fileID: 0}
         m_MethodName: StartReplay
         m_Mode: 1
         m_Arguments:
@@ -27574,7 +27577,6 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 954008278}
-  - component: {fileID: 954008277}
   m_Layer: 5
   m_Name: SimUI
   m_TagString: Untagged
@@ -27582,17 +27584,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &954008277
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 954008276}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 904c1dd206e41c149b78490849a38c8a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!224 &954008278
 RectTransform:
   m_ObjectHideFlags: 0
@@ -35352,7 +35343,7 @@ MonoBehaviour:
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 954008277}
+      - m_Target: {fileID: 0}
         m_MethodName: SwitchViewClickMoreBetterer
         m_Mode: 0
         m_Arguments:
@@ -47522,7 +47513,6 @@ GameObject:
   - component: {fileID: 1741231151}
   - component: {fileID: 1741231150}
   - component: {fileID: 1741231155}
-  - component: {fileID: 1741231157}
   m_Layer: 0
   m_Name: StateMachine
   m_TagString: Untagged
@@ -47701,24 +47691,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 295eda9ae911fcb4dbe092731714ac77, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Ultrasonic: {fileID: 0}
-  BeamBreaker: {fileID: 0}
-  Gyro: {fileID: 0}
-  OutputPanel: {fileID: 0}
---- !u!114 &1741231157
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 1741231142}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 66649da1359b37041b20df9e105bee7f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  robotCameraList: []
-  tempCameraList: []
-  SelectedNode: {fileID: 0}
+  Ultrasonic: {fileID: 1258842605002886, guid: 941d16575a5bc9a44876eaecfd6efe07, type: 2}
+  BeamBreaker: {fileID: 1681319532439062, guid: 5deefe182bdd7ac44983ea68bc0aaec0,
+    type: 2}
+  Gyro: {fileID: 1073280459731590, guid: d7d53a39caae66846aa0e501043daf06, type: 2}
+  OutputPanel: {fileID: 1987371576128046, guid: 742a8893c2539544cb1bf3b412188240,
+    type: 2}
 --- !u!1 &1744877097
 GameObject:
   m_ObjectHideFlags: 0
