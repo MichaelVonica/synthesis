@@ -15,7 +15,7 @@ namespace launcher
         {
             try
             {
-                Process.Start("Synthesis/Synthesis.exe");
+                Process.Start("Synthesis\\Synthesis.exe");
             }catch(Exception e)
             {
                 //Add popup and print e or friendly ux version
