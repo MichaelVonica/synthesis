@@ -24,5 +24,25 @@ namespace launcher
         {
             InitializeComponent();
         }
+
+        private void synthesis_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void emulator_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void website_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void tutorial_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
     }
 }

@@ -1,12 +1,29 @@
-﻿<Window x:Class="launcher.MainWindow"
+﻿<Window x:Name="LauncherWindow" x:Class="launcher.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:launcher"
         mc:Ignorable="d"
-        Title="MainWindow" Height="350" Width="525">
-    <Grid>
-        
+        Title="Synthesis" Height="350" Width="525" FontFamily="Artifakt Legend Medium" ResizeMode="NoResize" WindowStartupLocation="CenterScreen">
+    <Grid OpacityMask="#FFF3F3F3">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="166*"/>
+            <ColumnDefinition Width="7*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.Background>
+            <SolidColorBrush Color="Black" Opacity="0.6"/>
+        </Grid.Background>
+        <Label x:Name="label" Content="Synthesis" HorizontalAlignment="Left" Margin="13,11,0,0" VerticalAlignment="Top" FontWeight="Bold" Height="99" Width="213" FontSize="36"/>
+        <Label x:Name="label1" Content="An Autodesk Technology" HorizontalAlignment="Left" Margin="185,48,0,0" VerticalAlignment="Top" Width="207" Height="62" FontSize="16"/>
+        <Button x:Name="synthesis_button" Content="Synthesis" HorizontalAlignment="Left" Margin="10,110,0,0" VerticalAlignment="Top" Width="75" BorderThickness="0" Height="19" Click="synthesis_Click"/>
+        <Button x:Name="emulator_button" Content="Emulator" HorizontalAlignment="Left" Margin="10,156,0,0" VerticalAlignment="Top" Width="75" BorderThickness="0" Height="19" Click="emulator_Click"/>
+        <Button x:Name="website_button" Content="Website" HorizontalAlignment="Left" Margin="10,201,0,0" VerticalAlignment="Top" Width="75" BorderThickness="0" Height="19" Click="website_Click"/>
+        <Button x:Name="tutorial_button" Content="Tutorials" HorizontalAlignment="Left" Margin="10,243,0,0" VerticalAlignment="Top" Width="75" BorderThickness="0" Height="19" Click="tutorial_Click"/>
+        <Label x:Name="label2" Content="Starts the Synthesis Application" HorizontalAlignment="Left" Margin="105,106,0,0" VerticalAlignment="Top" Width="327"/>
+        <Label x:Name="label3" Content="Enables your computer to run simulated code" HorizontalAlignment="Left" Margin="105,152,0,0" VerticalAlignment="Top" Width="343"/>
+        <Label x:Name="label4" Content="Opens the Synthesis website " HorizontalAlignment="Left" Margin="105,197,0,0" VerticalAlignment="Top" Width="343"/>
+        <Label x:Name="label5" Content="Takes you directly to our Tutorials page of our website" HorizontalAlignment="Left" Margin="105,239,0,0" VerticalAlignment="Top" Width="362"/>
+
     </Grid>
 </Window>
