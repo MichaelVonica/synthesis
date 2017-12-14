@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Diagnostics;
+using System.Windows;
+using System.IO;
 
 namespace launcher
 {
@@ -13,11 +15,14 @@ namespace launcher
 
         public static void launch_synthesis()
         {
+
             try
             {
+                MessageBoxResult result = MessageBox.Show("Dir : " + Directory.GetCurrentDirectory() + "\\Synthesis\\Synthesis.exe");
                 Process.Start("Synthesis\\Synthesis.exe");
             }catch(Exception e)
             {
+                MessageBoxResult result = MessageBox.Show("Exception" + e.ToString() + "\n" + "Dir : " + Directory.GetCurrentDirectory());
                 //Add popup and print e or friendly ux version
             }
         }
