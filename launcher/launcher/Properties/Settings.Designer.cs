@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace SynthesisLauncher.Properties
+namespace launcher.Properties
 {
 
 
