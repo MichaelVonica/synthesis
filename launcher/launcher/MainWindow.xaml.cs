@@ -27,22 +27,22 @@ namespace launcher
 
         private void synthesis_Click(object sender, RoutedEventArgs e)
         {
-
+            Launcher.launch_synthesis();
         }
 
         private void emulator_Click(object sender, RoutedEventArgs e)
         {
-
+            Launcher.launch_emulator();
         }
 
         private void website_Click(object sender, RoutedEventArgs e)
         {
-
+            Launcher.open_website();
         }
 
         private void tutorial_Click(object sender, RoutedEventArgs e)
         {
-
+            Launcher.open_tutorials();
         }
     }
 }
