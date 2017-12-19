@@ -35,7 +35,7 @@ public class Robot : MonoBehaviour
 
     private DriverPracticeRobot dpmRobot;
 
-    public bool ControlsEnabled = true;
+    public static bool ControlsEnabled = true;
 
     private Vector3 nodeToRobotOffset;
 
@@ -102,13 +102,14 @@ public class Robot : MonoBehaviour
         }
 
         if (!IsResetting)
+        //if (!IsResetting && ControlsEnabled)
         {
             if (InputControl.GetButtonDown(Controls.buttons[ControlIndex].resetRobot) && !MixAndMatchMode.setPresetPanelOpen)
             {
                 keyDownTime = Time.time;
             }
 
-            else if (InputControl.GetButton(Controls.buttons[ControlIndex].resetRobot) &&  !MixAndMatchMode.setPresetPanelOpen &&
+            else if (InputControl.GetButton(Controls.buttons[ControlIndex].resetRobot) && !MixAndMatchMode.setPresetPanelOpen &&
                 !mainState.DynamicCameraObject.GetComponent<DynamicCamera>().cameraState.GetType().Equals(typeof(DynamicCamera.ConfigurationState)))
             {
                 if (Time.time - keyDownTime > HOLD_TIME)
@@ -192,8 +193,6 @@ public class Robot : MonoBehaviour
         //Detach and destroy all sensors on the original robot
         SensorManager sensorManager = GameObject.Find("SensorManager").GetComponent<SensorManager>();
         sensorManager.ResetSensorLists();
-
-
 
         //Removes Driver Practice component if it exists
         if (dpmRobot != null)
@@ -290,7 +289,7 @@ public class Robot : MonoBehaviour
 
                     int k = 0;
 
-                    Vector3? offset = null; 
+                    Vector3? offset = null;
                     foreach (Mesh meshObject in meshList)
                     {
                         GameObject meshObj = new GameObject(node.MainObject.name + "_mesh");
@@ -409,11 +408,12 @@ public class Robot : MonoBehaviour
                     offset.y = float.Parse(reader.ReadLine());
                     offset.z = float.Parse(reader.ReadLine());
                 }
-            } catch
+            }
+            catch
             {
                 offset = Vector3.zero;
             }
-           
+
         }
 
         return true;
@@ -808,7 +808,7 @@ public class Robot : MonoBehaviour
             EndReset();
         }
     }
-#endregion
+    #endregion
 
     /// <summary>
     /// Returns the driver practice component of this robot

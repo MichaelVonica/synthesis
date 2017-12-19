@@ -50,6 +50,7 @@ public class SimUI : MonoBehaviour
 
     GameObject toolbar;
 
+    GameObject scoreBoardPanel;
     public static bool changeAnalytics = true;
 
     GameObject exitPanel;
@@ -133,9 +134,10 @@ public class SimUI : MonoBehaviour
 
         driverStationPanel = AuxFunctions.FindObject(canvas, "DriverStationPanel");
         changeRobotPanel = AuxFunctions.FindObject(canvas, "ChangeRobotPanel");
+        changeFieldPanel = AuxFunctions.FindObject(canvas, "ChangeFieldPanel");
         robotListPanel = AuxFunctions.FindObject(changeRobotPanel, "RobotListPanel");
 
-        changeFieldPanel = AuxFunctions.FindObject(canvas, "ChangeFieldPanel");
+        unitConversionSwitch = AuxFunctions.FindObject(canvas, "UnitConversionSwitch");
 
         inputManagerPanel = AuxFunctions.FindObject(canvas, "InputManagerPanel");
         checkSavePanel = AuxFunctions.FindObject(canvas, "CheckSavePanel");
@@ -159,6 +161,8 @@ public class SimUI : MonoBehaviour
         toolbar = AuxFunctions.FindObject(canvas, "Toolbar");
         changePanel = AuxFunctions.FindObject(canvas, "ChangePanel");
         addPanel = AuxFunctions.FindObject(canvas, "AddPanel");
+
+        scoreBoardPanel = AuxFunctions.FindObject(canvas, "ScoreBoard");
 
         CheckControlPanel();
     }
@@ -334,6 +338,24 @@ public class SimUI : MonoBehaviour
             camera.GetComponent<Text>().text = "Overview";
     }
 
+    #endregion
+    #region camera button functions
+    //Camera Functions 2550
+    //public void SwitchCameraFreeroam()
+    //{
+    //    camera.SwitchCameraState(0);
+    //}
+
+    //public void SwitchCameraOrbit()
+    //{
+    //    camera.SwitchCameraState(1);
+    //}
+
+    //public void SwitchCameraDriverStation()
+    //{
+    //    camera.SwitchCameraState(2);
+    //}
+
     /// <summary>
     /// Pop freeroam instructions when using freeroam camera, won't show up again if the user closes it
     /// </summary>
@@ -352,6 +374,7 @@ public class SimUI : MonoBehaviour
             freeroamCameraWindow.SetActive(false);
         }
     }
+
 
     /// <summary>
     /// Close freeroam camera tool tip
@@ -695,4 +718,3 @@ public class SimUI : MonoBehaviour
         }
     }
 }
-

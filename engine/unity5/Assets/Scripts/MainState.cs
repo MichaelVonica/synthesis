@@ -120,6 +120,11 @@ public class MainState : SimState
                 return;
             }
 
+            //fieldPath = PlayerPrefs.GetString("simSelectedField");
+            //robotPath = PlayerPrefs.GetString("simSelectedRobot");
+            //Debug.Log(RobotFieldLoader.LoadField(fieldPath) ? "Load field success!" : "Load field failed.");
+            //Debug.Log(LoadRobot(robotPath) ? "Load robot success!" : "Load robot failed.");
+
             if (!LoadRobot(PlayerPrefs.GetString("simSelectedRobot"), RobotTypeManager.IsMixAndMatch))
             {
                 AppModel.ErrorToMenu("Could not load robot: " + PlayerPrefs.GetString("simSelectedRobot") + "\nHas it been moved or deleted?)");
@@ -130,6 +135,7 @@ public class MainState : SimState
             {
                 Debug.Log(LoadManipulator(RobotTypeManager.ManipulatorPath) ? "Load manipulator success" : "Load manipulator failed");
             }
+            
         }
         else
         {
@@ -152,6 +158,9 @@ public class MainState : SimState
         StateMachine.Instance.Link<MainState>(GameObject.Find("Main Camera").transform.GetChild(0).gameObject);
         StateMachine.Instance.Link<ReplayState>(Resources.FindObjectsOfTypeAll<GameObject>().First(x => x.name.Equals("ReplayUI")));
         StateMachine.Instance.Link<SaveReplayState>(Resources.FindObjectsOfTypeAll<GameObject>().First(x => x.name.Equals("SaveReplayUI")));
+
+        //ScoreZoneSimSceneManager scoreZoneSimSceneManager = GameObject.Find("StateMachine").GetComponent<ScoreZoneSimSceneManager>();
+        //scoreZoneSimSceneManager.LoadScoreZones();
     }
 
     /// <summary>
@@ -170,7 +179,6 @@ public class MainState : SimState
         {
             if (Input.GetKeyDown(KeyCode.U) && !MixAndMatchMode.setPresetPanelOpen) LoadRobot(robotPath, ActiveRobot.RobotIsMixAndMatch);
             if (Input.GetKeyDown(KeyCode.Y)) SwitchActiveRobot();
-
         }
 
         // Toggles between the different camera states if the camera toggle button is pressed
@@ -283,7 +291,7 @@ public class MainState : SimState
 
             return true;
         }
-        return false;
+        else return false;
     }
 
     /// <summary>
@@ -404,6 +412,9 @@ public class MainState : SimState
         string fieldDirectory;
 
         ReplayImporter.Read(name, out fieldDirectory, out fieldStates, out robotStates, out gamePieceStates, out contacts);
+
+        //RobotFieldLoader.LoadField(PlayerPrefs.GetString("simSelectedField"));
+        //LoadRobot(PlayerPrefs.GetString("simSelectedRobot"));
 
         if (!LoadField(fieldDirectory))
         {

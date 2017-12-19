@@ -3,20 +3,38 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using Assets.Scripts.FSM;
+using UnityEditor;
+using System.IO;
+using System;
 
 public class DriverPracticeMode : MonoBehaviour {
 
-    private DriverPracticeRobot dpmRobot;
+    //private DriverPracticeRobot dpmRobot; //2550
+    private Scoreboard scoreboard;
+    private GameplayTimer timer;
+    public DriverPracticeRobot dpmRobot { get; private set; } // need direct access for low-level instantiation w/ scoring
     private SimUI simUI;
+    private GoalDisplayManager goalDisplayManager;
     private MainState mainState;
+
+    MainState main;
 
     GameObject canvas;
 
     GameObject dpmWindow;
+    GameObject scoreWindow;
+    GameObject scoreLogWindow;
+    GameObject saveGameWindow;
+    GameObject setSaveWindow;
+    GameObject createSaveWindow;
+    GameObject timerWindow;
     GameObject configWindow;
+    GameObject goalConfigWindow;
     GameObject defineIntakeWindow;
     GameObject defineReleaseWindow;
     GameObject setSpawnWindow;
+    GameObject setGoalXZWindow;
+    GameObject setGoalYWindow;
     GameObject defineGamepieceWindow;
 
     GameObject releaseVelocityPanel;
@@ -27,6 +45,22 @@ public class DriverPracticeMode : MonoBehaviour {
     GameObject releaseSpeedEntry;
     GameObject releaseVerticalEntry;
     GameObject releaseHorizontalEntry;
+
+    Image timerBackground;
+    Image scoreBackground;
+    /// <summary>
+    /// These are the colors applied to the score and timer displays at various points of a game.
+    /// scoreInactiveColor - The color of the score display when no game has started or ended, or when a game has been terminated
+    /// timerStartColor    - The color of the timer display when a game starts.
+    /// scoreStartColor    - The color of the score display when a game starts.
+    /// timerEndColor      - The color of the timer display when a game has ended.
+    /// scoreEndColor      - The color of the score display when a game has ended.
+    /// </summary>
+    public Color scoreInactiveColor = new Color(255 / 255f, 255 / 255f, 255 / 255f, 50 / 255f);
+    public Color timerStartColor = new Color(0 / 255f, 235 / 255f, 0 / 255f, 127 / 255f);
+    public Color scoreStartColor = new Color(0 / 255f, 255 / 255f, 0 / 255f, 127 / 255f);
+    public Color timerEndColor = new Color(235 / 255f, 0 / 255f, 0 / 255f, 50 / 255f);
+    public Color scoreEndColor = new Color(255 / 255f, 0 / 255f, 0 / 255f, 127 / 255f);
 
     Text enableDPMText;
 
@@ -46,10 +80,17 @@ public class DriverPracticeMode : MonoBehaviour {
     Text primaryCountText;
     Text secondaryCountText;
 
+    Text currentSaveFileText;
+    Dropdown selectedSaveFileDropdown;
+    InputField newSaveFileField;
+
     GameObject lockPanel;
 
     public bool dpmWindowOn = false; //if the driver practice mode window is active
+    public bool gameStarted = false; //if a game has started
+    public bool gameEnded = false; //if the game started has ended
     public bool configuring = false; //if the configuration window is active
+    public bool goalConfiguring = false; //if the goal configuration window is active
     public int configuringIndex = 0; //0 if user is configuring primary, 1 if user is configuring secondary
 
     private int holdCount = 0; //counts how long a button has been pressed (for add/subtract buttons to increase increment)
@@ -65,6 +106,8 @@ public class DriverPracticeMode : MonoBehaviour {
     private float deltaReleaseSpeed;
     private float deltaReleaseHorizontal;
     private float deltaReleaseVertical;
+
+    private string renamingSave = "";
 
     private int settingControl = 0; //0 if false, 1 if intake, 2 if release, 3 if spawn
 
@@ -94,16 +137,37 @@ public class DriverPracticeMode : MonoBehaviour {
             UpdateWindows();
 
             if (settingControl != 0) ListenControl();
+
+            if (gameStarted && !timer.IsTimerRunning()) // Game is over. Update variables and display colors.
+            {
+                gameEnded = true;
+                SetGameDisplayColors(timerEndColor, scoreEndColor);
+            }
         }
     }
 
     void FindElements()
     {
         canvas = GameObject.Find("Canvas");
+        scoreboard = GetComponent<Scoreboard>();
+        timer = GetComponent<GameplayTimer>();
         simUI = GetComponent<SimUI>();
+        goalDisplayManager = GetComponent<GoalDisplayManager>();
 
         dpmWindow = AuxFunctions.FindObject(canvas, "DPMPanel");
+        scoreWindow = AuxFunctions.FindObject(canvas, "ScorePanel");
+        scoreLogWindow = AuxFunctions.FindObject(canvas, "ScoreLogPanel");
+        scoreLogWindow = AuxFunctions.FindObject(canvas, "CreateSavePanel");
+        timerWindow = AuxFunctions.FindObject(canvas, "GameplayTimerPanel");
         configWindow = AuxFunctions.FindObject(canvas, "ConfigurationPanel");
+        goalConfigWindow = AuxFunctions.FindObject(canvas, "GoalConfigPanel");
+
+        saveGameWindow = AuxFunctions.FindObject(canvas, "SaveGamePanel");
+        setSaveWindow = AuxFunctions.FindObject(canvas, "SetSavePanel");
+        createSaveWindow = AuxFunctions.FindObject(canvas, "CreateSavePanel");
+
+        timerBackground = AuxFunctions.FindObject(timerWindow, "TimerTextField").GetComponent<Image>();
+        scoreBackground = AuxFunctions.FindObject(scoreWindow, "Score").GetComponent<Image>();
 
         //enableDPMText = AuxFunctions.FindObject(canvas, "EnableDPMText").GetComponent<Text>();
 
@@ -125,10 +189,16 @@ public class DriverPracticeMode : MonoBehaviour {
         releaseMechanismText = AuxFunctions.FindObject(canvas, "ReleaseMechanismText").GetComponent<Text>();
         intakeMechanismText = AuxFunctions.FindObject(canvas, "IntakeMechanismText").GetComponent<Text>();
 
+        currentSaveFileText = AuxFunctions.FindObject(canvas, "CurrentSaveFileText").GetComponent<Text>();
+        selectedSaveFileDropdown = AuxFunctions.FindObject(canvas, "SaveListDropdown").GetComponent<Dropdown>();
+        newSaveFileField = AuxFunctions.FindObject(canvas, "NewSaveNameInput").GetComponent<InputField>();
+
         defineIntakeWindow = AuxFunctions.FindObject(canvas, "DefineIntakePanel");
         defineReleaseWindow = AuxFunctions.FindObject(canvas, "DefineReleasePanel");
         defineGamepieceWindow = AuxFunctions.FindObject(canvas, "DefineGamepiecePanel");
         setSpawnWindow = AuxFunctions.FindObject(canvas, "SetGamepieceSpawnPanel");
+        setGoalXZWindow = AuxFunctions.FindObject(canvas, "SetGamepieceGoalXZPanel");
+        setGoalYWindow = AuxFunctions.FindObject(canvas, "SetGamepieceGoalYPanel");
 
         intakeControlText = AuxFunctions.FindObject(canvas, "IntakeInputButton").GetComponentInChildren<Text>();
         releaseControlText = AuxFunctions.FindObject(canvas, "ReleaseInputButton").GetComponentInChildren<Text>();
@@ -238,25 +308,60 @@ public class DriverPracticeMode : MonoBehaviour {
             if (dpmRobot.addingGamepiece)
             {
                 configWindow.SetActive(false);
+                goalConfigWindow.SetActive(false);
                 dpmWindow.SetActive(false);
+                scoreWindow.SetActive(false);
+                scoreLogWindow.SetActive(false);
+                timerWindow.SetActive(false);
                 defineGamepieceWindow.SetActive(true);
             }
             else if (dpmRobot.settingSpawn != 0)
             {
                 configWindow.SetActive(false);
+                goalConfigWindow.SetActive(false);
                 dpmWindow.SetActive(false);
+                scoreWindow.SetActive(false);
+                scoreLogWindow.SetActive(false);
+                timerWindow.SetActive(false);
                 setSpawnWindow.SetActive(true);
+            }
+            else if (dpmRobot.settingGamepieceGoal != 0)
+            {
+                configWindow.SetActive(false);
+                goalConfigWindow.SetActive(false);
+                dpmWindow.SetActive(false);
+                scoreWindow.SetActive(false);
+                scoreLogWindow.SetActive(false);
+                timerWindow.SetActive(false);
+                if (!dpmRobot.settingGamepieceGoalVertical)
+                {
+                    setGoalXZWindow.SetActive(true);
+                    setGoalYWindow.SetActive(false);
+                }
+                else
+                {
+                    setGoalXZWindow.SetActive(false);
+                    setGoalYWindow.SetActive(true);
+                }
             }
             else if (dpmRobot.definingIntake)
             {
                 configWindow.SetActive(false);
+                goalConfigWindow.SetActive(false);
                 dpmWindow.SetActive(false);
+                scoreWindow.SetActive(false);
+                scoreLogWindow.SetActive(false);
+                timerWindow.SetActive(false);
                 defineIntakeWindow.SetActive(true);
             }
             else if (dpmRobot.definingRelease)
             {
                 configWindow.SetActive(false);
+                goalConfigWindow.SetActive(false);
                 dpmWindow.SetActive(false);
+                scoreWindow.SetActive(false);
+                scoreLogWindow.SetActive(false);
+                timerWindow.SetActive(false);
                 defineReleaseWindow.SetActive(true);
             }
             else
@@ -264,10 +369,19 @@ public class DriverPracticeMode : MonoBehaviour {
                 dpmWindowOn = true;
                 defineGamepieceWindow.SetActive(false);
                 setSpawnWindow.SetActive(false);
+                setGoalXZWindow.SetActive(false);
+                setGoalYWindow.SetActive(false);
                 defineIntakeWindow.SetActive(false);
                 defineReleaseWindow.SetActive(false);
                 dpmWindow.SetActive(true);
+                scoreWindow.SetActive(true);
                 configWindow.SetActive(true);
+
+                if (goalConfiguring)
+                    goalConfigWindow.SetActive(true);
+
+                if (gameStarted)
+                    timerWindow.SetActive(true);
             }
         }
     }
@@ -279,15 +393,307 @@ public class DriverPracticeMode : MonoBehaviour {
     {
         if (dpmWindowOn)
         {
-            dpmWindowOn = false;
-
+            if (!configuring && !goalConfiguring)
+                dpmWindowOn = false;
+            else UserMessageManager.Dispatch("You must close all configuration windows first!", 5);
         }
         else
         {
             simUI.EndOtherProcesses();
             dpmWindowOn = true;
         }
+
         dpmWindow.SetActive(dpmWindowOn);
+    }
+
+    /// <summary>
+    /// Sets the driver practice mode to either be enabled or disabled, depending on what state it was at before.
+    /// </summary>
+    public void DPMToggle()
+    {
+        if (!dpmRobot.modeEnabled)
+        {
+            dpmRobot.modeEnabled = true;
+            enableDPMText.text = "Disable Driver Practice Mode";
+            lockPanel.SetActive(false);
+            scoreWindow.SetActive(true);
+            scoreboard.ResetScore();
+        }
+        else
+        {
+            if (goalConfiguring) UserMessageManager.Dispatch("You must close all configuration windows first!", 5);
+            else if (configuring) UserMessageManager.Dispatch("You must close the configuration window first!", 5);
+            else
+            {
+                enableDPMText.text = "Enable Driver Practice Mode";
+                dpmRobot.displayTrajectories[0] = false;
+                dpmRobot.displayTrajectories[1] = false;
+                dpmRobot.modeEnabled = false;
+                lockPanel.SetActive(true);
+                scoreWindow.SetActive(false);
+                scoreLogWindow.SetActive(false);
+                saveGameWindow.SetActive(false);
+                setSaveWindow.SetActive(false);
+                createSaveWindow.SetActive(false);
+                StopGame();
+            }
+
+        }
+    }
+
+    public void ToggleSaveGameWindow()
+    {
+        if (saveGameWindow.activeSelf)
+        {
+            saveGameWindow.SetActive(false);
+            setSaveWindow.SetActive(false);
+            createSaveWindow.SetActive(false);
+        }
+        else
+        {
+            saveGameWindow.SetActive(true);
+            currentSaveFileText.text = PlayerPrefs.GetString("selectedSaveFile", "Default");
+        }
+    }
+    
+    public void ToggleSetSaveWindow()
+    {
+        if (setSaveWindow.activeSelf)
+        {
+            setSaveWindow.SetActive(false);
+            createSaveWindow.SetActive(false);
+        }
+        else
+        {
+            setSaveWindow.SetActive(true);
+            UpdateSaveFileList();
+        }
+    }
+
+    public void ToggleCreateSaveWindow()
+    {
+        if (createSaveWindow.activeSelf)
+        {
+            createSaveWindow.SetActive(false);
+        }
+        else
+        {
+            createSaveWindow.SetActive(true);
+            newSaveFileField.text = "";
+            renamingSave = "";
+        }
+    }
+
+    /// <summary>
+    /// Start a new game. Displays the timer and resets the score.
+    /// </summary>
+    public void StartGame()
+    {
+        if (dpmRobot.modeEnabled)
+        {
+            timerWindow.SetActive(true);
+            timer.StartTimer();
+            scoreboard.ResetScore();
+            gameStarted = true;
+            gameEnded = false;
+            SetGameDisplayColors(timerStartColor, scoreStartColor);
+        }
+        else UserMessageManager.Dispatch("You must enable driver practice mode first.", 5);
+    }
+
+    /// <summary>
+    /// Terminate an on-going game. Hides the timer and resets the score.
+    /// </summary>
+    public void StopGame()
+    {
+        if (gameStarted)
+        {
+            timer.StopTimer();
+            timerWindow.SetActive(false);
+            scoreboard.ResetScore();
+            gameStarted = false;
+            gameEnded = true;
+            SetGameDisplayColors(timerEndColor, scoreInactiveColor);
+        }
+        else Debug.Log("A game has not been started.");
+    }
+
+    /// <summary>
+    /// Set the color of the timer and score backgrounds to signify certain game states (ongoing, ended, etc).
+    /// </summary>
+    /// <param name="timerColor">Color of the timer background.</param>
+    /// <param name="scoreColor">Color of the score background.</param>
+    public void SetGameDisplayColors(Color timerColor, Color scoreColor)
+    {
+        if (timerBackground != null)
+            timerBackground.color = timerColor;
+        if (scoreBackground != null)
+            scoreBackground.color = scoreColor;
+    }
+
+    /// <summary>
+    /// Update the save file dropdown with the list of known save files.
+    /// </summary>
+    public void UpdateSaveFileList()
+    {
+        List<string> saveFiles = Scoreboard.GetSaveFileList();
+        string selectedSaveFile = PlayerPrefs.GetString("selectedSaveFile", "Default");
+        int selectedSaveFileId = -1;
+
+        selectedSaveFileDropdown.options.Clear();
+
+        for (int i = 0; i < saveFiles.Count; i++)
+        {
+            selectedSaveFileDropdown.options.Add(new Dropdown.OptionData(saveFiles[i]));
+
+            if (saveFiles[i] == selectedSaveFile) // Find option this is the current save file, use to set dropdown value.
+                selectedSaveFileId = i;
+        }
+
+        if (selectedSaveFileId == -1)
+        {
+            Scoreboard.CreateNewSaveFile(selectedSaveFile);
+            selectedSaveFileDropdown.options.Add(new Dropdown.OptionData(selectedSaveFile));
+            selectedSaveFileId = selectedSaveFileDropdown.options.Count - 1;
+        }
+
+        selectedSaveFileDropdown.value = selectedSaveFileId;
+        selectedSaveFileDropdown.captionText.text = selectedSaveFile;
+    }
+
+    /// <summary>
+    /// Change the default save file to the one selected in the save list.
+    /// </summary>
+    public void ChangeSave()
+    {
+        if (dpmRobot.modeEnabled)
+        {
+            string chosenSave = selectedSaveFileDropdown.options[selectedSaveFileDropdown.value].text;
+
+            if (chosenSave != null)
+            {
+                if (setSaveWindow.activeSelf)
+                    ToggleSetSaveWindow();
+                PlayerPrefs.SetString("selectedSaveFile", chosenSave);
+                currentSaveFileText.text = chosenSave;
+            }
+            else UserMessageManager.Dispatch("Cannot save to " + chosenSave, 5);
+        }
+        else UserMessageManager.Dispatch("You must enable driver practice mode first.", 5);
+    }
+
+    /// <summary>
+    /// Create a new save file with the name written in the new save file field, or rename a save file if rename was pressed.
+    /// </summary>
+    public void CreateSaveFile()
+    {
+        if (dpmRobot.modeEnabled)
+        {
+            try
+            {
+                if (renamingSave == "")
+                {
+
+                    Scoreboard.CreateNewSaveFile(newSaveFileField.text);
+
+                    PlayerPrefs.SetString("selectedSaveFile", newSaveFileField.text);
+                    currentSaveFileText.text = newSaveFileField.text;
+                }
+                else
+                {
+                    Scoreboard.RenameSaveFile(renamingSave, newSaveFileField.text);
+
+                    if (PlayerPrefs.GetString("selectedSaveFile", "Default") == renamingSave)
+                    {
+                        PlayerPrefs.SetString("selectedSaveFile", newSaveFileField.text);
+                        currentSaveFileText.text = newSaveFileField.text;
+                    }
+
+                    renamingSave = "";
+                }
+
+                UpdateSaveFileList();
+                createSaveWindow.SetActive(false);
+            }
+            catch
+            {
+                UserMessageManager.Dispatch("An unknown error occured!", 5);
+                throw;
+            }
+        }
+        else UserMessageManager.Dispatch("You must enable driver practice mode first.", 5);
+    }
+
+    /// <summary>
+    /// Delete the save file currently selected by the save file dropdown menu.
+    /// </summary>
+    public void DeleteSaveFile()
+    {
+        if (dpmRobot.modeEnabled)
+        {
+            string fileToDelete = selectedSaveFileDropdown.options[selectedSaveFileDropdown.value].text;
+            Scoreboard.DeleteSaveFile(fileToDelete);
+
+            if (PlayerPrefs.GetString("selectedSaveFile", "Default") == fileToDelete)
+            {
+                List<string> saveFiles = Scoreboard.GetSaveFileList();
+
+                if (saveFiles.Count > 0)
+                    PlayerPrefs.SetString("selectedSaveFile", saveFiles[0]);
+                else
+                    PlayerPrefs.SetString("selectedSaveFile", "Default");
+            }
+
+            currentSaveFileText.text = PlayerPrefs.GetString("selectedSaveFile", "Default");
+            UpdateSaveFileList();
+        }
+        else UserMessageManager.Dispatch("You must enable driver practice mode first.", 5);
+    }
+
+    /// <summary>
+    /// Rename the save file currently selected in the dropdown by opening the create new save window.
+    /// </summary>
+    public void RenameSaveFile()
+    {
+        if (dpmRobot.modeEnabled)
+        {
+            string fileToRename = selectedSaveFileDropdown.options[selectedSaveFileDropdown.value].text;
+            if (!createSaveWindow.activeSelf)
+                ToggleCreateSaveWindow();
+
+            newSaveFileField.text = fileToRename;
+            renamingSave = fileToRename;
+        }
+        else UserMessageManager.Dispatch("You must enable driver practice mode first.", 5);
+    }
+
+    /// <summary>
+    /// Save the log of the current game to a text file.
+    /// </summary>
+    public void SaveGameStats()
+    {
+        if (dpmRobot.modeEnabled)
+        {
+            scoreboard.Save(Scoreboard.SaveDirectory + PlayerPrefs.GetString("selectedSaveFile", "Default") + ".csv");
+            UserMessageManager.Dispatch("Save successful!", 5);
+            if (saveGameWindow.activeSelf)
+                ToggleSaveGameWindow();
+        }
+        else UserMessageManager.Dispatch("You must enable driver practice mode first.", 5);
+    }
+
+    public void ExportGameStats()
+    {
+        if (dpmRobot.modeEnabled)
+        {
+            string exportLocation = EditorUtility.SaveFilePanel("Choose where to export the game statistics CSV", System.Environment.GetFolderPath(System.Environment.SpecialFolder.MyDocuments),
+                                                                PlayerPrefs.GetString("selectedSaveFile", "Default"), "csv");
+            if (exportLocation != "")
+            {
+                Scoreboard.ExportSaveFile(PlayerPrefs.GetString("selectedSaveFile", "Default"), exportLocation);
+            }
+        }
+        else UserMessageManager.Dispatch("You must enable driver practice mode first.", 5);
     }
 
     /// <summary>
@@ -369,6 +775,7 @@ public class DriverPracticeMode : MonoBehaviour {
     #region dpm configuration button functions
     public void CloseConfigurationWindow()
     {
+        CloseGamepieceGoalsConfig();
         configWindow.SetActive(false);
         configuring = false;
         dpmRobot.displayTrajectories[configuringIndex] = false;
@@ -429,7 +836,52 @@ public class DriverPracticeMode : MonoBehaviour {
         dpmRobot.FinishGamepieceSpawn();
     }
 
+    public void OpenGamepieceGoalsConfig()
+    {
+        dpmRobot.InitGoalManagerDisplay(configuringIndex, goalDisplayManager);
+        goalConfigWindow.SetActive(true);
+        goalConfiguring = true;
+    }
 
+    public void CloseGamepieceGoalsConfig()
+    {
+        dpmRobot.FinishGamepieceGoal();
+        goalConfigWindow.SetActive(false);
+        goalConfiguring = false;
+    }
+
+    public void NewGamepieceGoal()
+    {
+        dpmRobot.NewGoal(configuringIndex);
+        dpmRobot.InitGoalManagerDisplay(configuringIndex, goalDisplayManager);
+    }
+
+    public void DeleteGamepieceGoal(int goalIndex)
+    {
+        dpmRobot.DeleteGoal(configuringIndex, goalIndex);
+        dpmRobot.InitGoalManagerDisplay(configuringIndex, goalDisplayManager);
+    }
+
+    public void SetGamepieceGoal(int goalIndex)
+    {
+        simUI.EndOtherProcesses();
+        dpmRobot.StartGamepieceGoal(configuringIndex, goalIndex);
+    }
+
+    public void CancelGamepieceGoal()
+    {
+        dpmRobot.FinishGamepieceGoal();
+    }
+
+    public void SetGamepieceGoalDescription(int goalIndex, string description)
+    {
+        dpmRobot.SetGamepieceGoalDescription(configuringIndex, goalIndex, description);
+    }
+
+    public void SetGamepieceGoalPoints(int goalIndex, int points)
+    {
+        dpmRobot.SetGamepieceGoalPoints(configuringIndex, goalIndex, points);
+    }
 
     public void ChangeOffsetX(int sign)
     {
@@ -563,12 +1015,14 @@ public class DriverPracticeMode : MonoBehaviour {
         dpmWindow.SetActive(false);
         if (configuring)
         {
-            CloseConfigurationWindow();
             CancelDefineGamepiece();
             CancelDefineIntake();
             CancelDefineRelease();
             CancelGamepieceSpawn();
+            CancelGamepieceGoal();
         }
+        if (gameStarted)
+            StopGame();
     }
 
     private void StartNewProcess()
@@ -586,6 +1040,17 @@ public class DriverPracticeMode : MonoBehaviour {
         DriverPracticeRobot newRobot = mainState.SpawnedRobots[index].GetComponent<DriverPracticeRobot>();
         dpmRobot.displayTrajectories[0] = false;
         dpmRobot.displayTrajectories[1] = false;
+
+        if (newRobot.modeEnabled)
+        {
+            enableDPMText.text = "Disable Driver Practice Mode";
+            lockPanel.SetActive(false);
+        }
+        else
+        { 
+            enableDPMText.text = "Enable Driver Practice Mode";
+            lockPanel.SetActive(true);
+        }
 
         UpdateDPMValues();
         dpmRobot = newRobot;

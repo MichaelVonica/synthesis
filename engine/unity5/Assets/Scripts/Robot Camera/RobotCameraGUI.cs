@@ -40,6 +40,7 @@ class RobotCameraGUI : MonoBehaviour
     //Camera configuration
     GameObject configureRobotCameraButton;
     GameObject configureCameraPanel;
+
     //Toggle between horizontal plane and height
     GameObject cameraConfigurationModeButton;
     GameObject changeCameraNodeButton;
@@ -77,6 +78,7 @@ class RobotCameraGUI : MonoBehaviour
             main = StateMachine.Instance.FindState<MainState>();
             dynamicCamera = main.DynamicCameraObject.GetComponent<DynamicCamera>();
         }
+
         //Update gui about robot camera once main and dynamic camera is ready
         else if (main != null && dynamicCamera != null)
         {
@@ -159,6 +161,7 @@ class RobotCameraGUI : MonoBehaviour
             {
                 robotCameraManager.CurrentCamera.SetActive(true);
                 robotCameraManager.CurrentCamera.GetComponent<Camera>().targetTexture = robotCameraView;
+
                 //Toggle the robot camera using Z (can be changed later)
                 if (Input.GetKeyDown(KeyCode.Z))
                 {

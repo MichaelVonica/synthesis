@@ -1,35 +1,28 @@
-# Simulator Engine
+# <img src="http://bxd.autodesk.com/synthesis/images/synthesislogo.png" alt="logo" width="50" height ="50"/>Autodesk Synthesis
 
-This project folder is the simulation engine component. Made in Unity 5 using Bullet Physics libraries, this is the executable that loads exported robots and fields and provides a real time physics environment for them to interact with each other.
+Synthesis is a robotics simulator designed to help FIRST Robotics teams design, strategize, test, and practice. Teams can import their own robot and field designs or use preexisting ones into the simulator for a variety of uses, including:
+* Testing robot designs
+* Exploring the field environment
+* Driver practice & strategy
+* Code emulation
 
-## Requirements:
-* Unity 5.6.2 (Required)
-* Visual Studio 2017 (Recommended)
+Developed solely by FIRST students, Synthesis is built with a direct focus on the FIRST community. At the start of this year, we made the project fully open source so that we can better involve the community. This way, contributors can help make Synthesis better or modify Synthesis to better suit their team’s needs.
 
-## Setup Instructions
+For more information on the product itself or the team, visit http://bxd.autodesk.com/
 
-Open the engine/unity5 project folder within Unity. Because we switched from the built-in
-PhysX physics engine to Bullet Physics, you will need to download and import that asset first. Here
-are the steps to do so:
-* On the navigation bar, go to Window -> Asset Store
-* Search 'Bullet Physics' and download and import 'Bullet Physics for Unity'
-* Import all included assets and ignore warning message
-* Bullet Physics should now be integrated within the project!
+## Getting Started
 
-If you want to test, you need to open the MainMenu.unity scene and run it from there as you will need to select and load a robot and field for the simulator to properly intialize.
+Synthesis is comprised of 4 separate components that are mostly developed independently of each other. You will want to clone the entire repository first, then follow a different set of steps depending on which component you wish to work on. The links below will lead you to specific instructions that will get you a copy of that component up and running on your local machine for development and testing purposes.
 
-### Sample Robots and Fields for Testing
-
-In order to test within the simulator, you will need exported robots and fields. You can export your own
-CAD models, but for the sake of convenience we've provided a few sample robots and fields for testing.
-
-* [Robots](https://autodesk.box.com/s/9lh1qvtxkurqvv3jlyfy455o5xqf6ts8)
-* [Fields](https://autodesk.box.com/s/kx0sv4i7i4pmsl4rpj9gpk03kq6ynz8k)
-
-You can place these anywhere within your main drive as we have a directory browser within the simulator, but it defaults to
-**documents\synthesis\robots** and **documents\synthesis\fields**, so you might want to place it there for
-convenience.
+* [Simulation Engine](https://github.com/Autodesk/synthesis/blob/master/engine/unity5/README.md)
+* [Robot Exporter (Inventor Plugin)](https://github.com/Autodesk/synthesis/blob/master/exporters/robot_exporter/README.md)
+* [Field Exporter (Inventor Plugin)](https://github.com/Autodesk/synthesis/blob/master/exporters/field_exporter/README.md)
+* [Code Emulator](https://github.com/Autodesk/synthesis/blob/master/emulation/emulator/README.md)
 
 
 
-Any questions or problems? Feel free to contact us at frc@autodesk.com
+## Contributing
+
+When contributing to this repository, please first discuss the change you wish to make via issue, email, or any other method with the owners of this repository before making a change. This  way, we can ensure that there is no overlap between contributions and internal development work. You may contact us at frc@autodesk.com.
+
+When ready to contribute, just submit a pull request and be sure to include a clear and detailed description of the changes you've made so that we can verify them and eventually merge.

@@ -127,6 +127,7 @@ public class MainMenu : MonoBehaviour
         if (robotDirectory != null) InitRobotBrowser();
 
 
+
         //Renders the message manager which displays error messages
         UserMessageManager.Render();
         UserMessageManager.scale = canvas.scaleFactor;
@@ -328,6 +329,18 @@ public class MainMenu : MonoBehaviour
         fieldBrowser.Active = true;
     }
 
+    public void SwitchScoreZoneEditor()
+    {
+        SelectSimField();
+        customfieldon = true;
+        homeTab.SetActive(false);
+        simTab.SetActive(false);
+        optionsTab.SetActive(false);
+        fieldBrowser.Active = false;
+        splashScreen.SetActive(true);
+        SceneManager.LoadScene("EditScoreZones");
+    }
+
     //Switches to the robot directory browser
     public void SwitchRobotDir()
     {
@@ -384,6 +397,17 @@ public class MainMenu : MonoBehaviour
     }
 
 
+
+    public void StartScoreZoneEditor()
+    {
+        if (Directory.Exists(simSelectedField))
+        {
+            splashScreen.SetActive(true);
+            PlayerPrefs.SetString("simSelectedField", simSelectedField);
+            PlayerPrefs.SetString("simSelectedFieldName", simSelectedFieldName);
+            Application.LoadLevel("EditScoreZones");
+        }
+    }
 
     #region Main Tab Button Methods
 
@@ -491,7 +515,7 @@ public class MainMenu : MonoBehaviour
         customroboton = true;
         currentTab = Tab.RobotDir;
     }
-
+    
     #endregion
     #region Other Methods
     /// <summary>
@@ -653,6 +677,7 @@ public class MainMenu : MonoBehaviour
         //Assigns the currently store registry values or default file path to the proper variables if they exist.
         robotDirectory = PlayerPrefs.GetString("RobotDirectory", (System.Environment.GetFolderPath(System.Environment.SpecialFolder.MyDocuments) + "//synthesis//Robots"));
         fieldDirectory = PlayerPrefs.GetString("FieldDirectory", (System.Environment.GetFolderPath(System.Environment.SpecialFolder.MyDocuments) + "//synthesis//Fields"));
+        fieldDirectory = (Directory.Exists(fieldDirectory)) ? fieldDirectory : robotDirectory = System.Environment.GetFolderPath(System.Environment.SpecialFolder.MyDocuments); //if the field directory no longer exists, set it to the default application path.
 
         //If the directory doesn't exist, create it.
         if (!Directory.Exists(robotDirectory))

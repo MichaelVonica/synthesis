@@ -202,6 +202,10 @@
     <Compile Include="Assets\BulletUnity\Scripts\SoftBody\BSoftBodyRope.cs" />
     <Compile Include="Assets\BulletUnity\Scripts\SoftBody\BSoftBodyWMesh.cs" />
     <Compile Include="Assets\BulletUnity\Scripts\SoftBody\SBSettings.cs" />
+    <Compile Include="Assets\DragGameObject.cs" />
+    <Compile Include="Assets\ScoreZoneActive.cs" />
+    <Compile Include="Assets\ScoreZoneCollisionDetection.cs" />
+    <Compile Include="Assets\ScoreZoneSimSceneManager.cs" />
     <Compile Include="Assets\Scripts\BUExtensions\BBallSocketConstraintEx.cs" />
     <Compile Include="Assets\Scripts\BUExtensions\BHingedConstraintEx.cs" />
     <Compile Include="Assets\Scripts\BUExtensions\BMultiCallbacks.cs" />
@@ -217,7 +221,12 @@
     <Compile Include="Assets\Scripts\DriveJoints.cs" />
     <Compile Include="Assets\Scripts\Driver Practice Mode\DriverPracticeMode.cs" />
     <Compile Include="Assets\Scripts\Driver Practice Mode\DriverPracticeRobot.cs" />
+    <Compile Include="Assets\Scripts\Driver Practice Mode\GamePieceRememberSpawnParams.cs" />
+    <Compile Include="Assets\Scripts\Driver Practice Mode\GamepieceGoal.cs" />
+    <Compile Include="Assets\Scripts\Driver Practice Mode\GameplayTimer.cs" />
+    <Compile Include="Assets\Scripts\Driver Practice Mode\GoalDisplayManager.cs" />
     <Compile Include="Assets\Scripts\Driver Practice Mode\Interactor.cs" />
+    <Compile Include="Assets\Scripts\Driver Practice Mode\Scoreboard.cs" />
     <Compile Include="Assets\Scripts\DynamicCamera.cs" />
     <Compile Include="Assets\Scripts\FEA\CollisionTracker.cs" />
     <Compile Include="Assets\Scripts\FEA\ContactDescriptor.cs" />
@@ -249,6 +258,8 @@
     <Compile Include="Assets\Scripts\GUI\TextWindow.cs" />
     <Compile Include="Assets\Scripts\GUI\Toolkit.cs" />
     <Compile Include="Assets\Scripts\GUI\UIDrag.cs" />
+    <Compile Include="Assets\Scripts\GUI\UIField.cs" />
+    <Compile Include="Assets\Scripts\GUI\UIScroll.cs" />
     <Compile Include="Assets\Scripts\GUI\UserMessageManager.cs" />
     <Compile Include="Assets\Scripts\GodMode.cs" />
     <Compile Include="Assets\Scripts\Helpers\BXDExtensions.cs" />
@@ -293,6 +304,14 @@
     <Compile Include="Assets\Scripts\Robot Camera\RobotCameraGUI.cs" />
     <Compile Include="Assets\Scripts\Robot Camera\RobotCameraManager.cs" />
     <Compile Include="Assets\Scripts\Robot.cs" />
+    <Compile Include="Assets\Scripts\RobotFieldLoader.cs" />
+    <Compile Include="Assets\Scripts\ScoreZoneEdit\ArrowDragger.cs" />
+    <Compile Include="Assets\Scripts\ScoreZoneEdit\EditScoreZoneState.cs" />
+    <Compile Include="Assets\Scripts\ScoreZoneEdit\ScoreZoneManipulatorManager.cs" />
+    <Compile Include="Assets\Scripts\ScoreZoneEdit\ScoreZonePrefUIManager.cs" />
+    <Compile Include="Assets\Scripts\ScoreZoneEdit\ScoreZoneSelectableManager.cs" />
+    <Compile Include="Assets\Scripts\ScoreZoneEdit\ScoreZoneSelectible.cs" />
+    <Compile Include="Assets\Scripts\ScoreZoneEdit\ScoreZoneSettingsContainer.cs" />
     <Compile Include="Assets\Scripts\Sensors\BeamBreaker.cs" />
     <Compile Include="Assets\Scripts\Sensors\Gyro.cs" />
     <Compile Include="Assets\Scripts\Sensors\SensorBase.cs" />
