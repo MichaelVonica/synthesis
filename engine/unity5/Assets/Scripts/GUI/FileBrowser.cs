@@ -150,6 +150,7 @@ class FileBrowser : OverlayWindow
         russoOne = Resources.Load("Fonts/Russo_One") as Font;
         windowTexture = Resources.Load("Images/greyBackground") as Texture2D;
         searchedButtonTexture = Resources.Load("Images/searchedButton") as Texture2D;
+
         //Custom style for windows
         fileBrowserWindow = new GUIStyle(GUI.skin.window);
         fileBrowserWindow.normal.background = windowTexture;
