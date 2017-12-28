@@ -48,6 +48,7 @@ public class DriverPracticeMode : MonoBehaviour {
 
     Image timerBackground;
     Image scoreBackground;
+
     /// <summary>
     /// These are the colors applied to the score and timer displays at various points of a game.
     /// scoreInactiveColor - The color of the score display when no game has started or ended, or when a game has been terminated

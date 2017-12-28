@@ -159,8 +159,8 @@ public class MainState : SimState
         StateMachine.Instance.Link<ReplayState>(Resources.FindObjectsOfTypeAll<GameObject>().First(x => x.name.Equals("ReplayUI")));
         StateMachine.Instance.Link<SaveReplayState>(Resources.FindObjectsOfTypeAll<GameObject>().First(x => x.name.Equals("SaveReplayUI")));
 
-        //ScoreZoneSimSceneManager scoreZoneSimSceneManager = GameObject.Find("StateMachine").GetComponent<ScoreZoneSimSceneManager>();
-        //scoreZoneSimSceneManager.LoadScoreZones();
+        ScoreZoneSimSceneManager scoreZoneSimSceneManager = GameObject.Find("StateMachine").GetComponent<ScoreZoneSimSceneManager>();
+        scoreZoneSimSceneManager.LoadScoreZones();
     }
 
     /// <summary>
