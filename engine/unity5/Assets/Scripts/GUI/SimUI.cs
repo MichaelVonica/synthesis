@@ -379,6 +379,17 @@ public class SimUI : MonoBehaviour
         oppositeSide = !oppositeSide;
         camera.SwitchCameraState(new DynamicCamera.DriverStationState(camera, oppositeSide));
     }
+
+    /// <summary>
+    /// Toggles between having the driver station view split-screen or single view
+    /// </summary>
+    public void ToggleSplitDriverStation()
+    {
+        var driverStationState = camera.cameraState as DynamicCamera.DriverStationState;
+
+        if (driverStationState != null)
+            driverStationState.ToggleSplitView();
+    }
     #endregion
     #region orient button functions
     public void OrientLeft()

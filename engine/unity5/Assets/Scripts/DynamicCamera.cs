@@ -65,6 +65,9 @@ public class DynamicCamera : MonoBehaviour
         static Vector3 position2Vector = new Vector3(0f, 1.5f, 9.5f);
         Vector3 currentPosition;
 
+        Camera splitCamera;
+        bool isSplit;
+
         float transformSpeed;
         bool opposite;
         private MainState main;
@@ -73,14 +76,35 @@ public class DynamicCamera : MonoBehaviour
         {
             this.mono = mono;
             this.opposite = oppositeSide;
+            splitCamera = GameObject.Find("SplitCamera").GetComponent<Camera>();
+        }
+
+        public void ToggleSplitView()
+        {
+            mono.GetComponent<Camera>().rect = new Rect(0f, 0f, (splitCamera.enabled = isSplit = !isSplit) ? 0.5f : 1f, 1.0f);
+            currentPosition = opposite ? position2Vector : position1Vector;
+            mono.transform.rotation = Quaternion.LookRotation(-mono.transform.position);
         }
 
         public override void Init()
         {
             //Decide which side the camera should be placed depending on whether it is opposite of default position
-            if (opposite) currentPosition = position2Vector;
-            else currentPosition = position1Vector;
+            if (opposite)
+            {
+                currentPosition = position2Vector;
+                splitCamera.transform.position = position1Vector;
+            }
+            else
+            {
+                currentPosition = position1Vector;
+                splitCamera.transform.position = position2Vector;
+            }
+            
             mono.transform.position = currentPosition;
+            splitCamera.transform.rotation = Quaternion.LookRotation(-splitCamera.transform.position);
+
+            //splitCamera.transform.rotation = Quaternion.LookRotation(-splitCamera.transform.position);
+            isSplit = false;
 
             startRotation = Quaternion.LookRotation(Vector3.zero - mono.transform.position);
             currentRotation = startRotation;
@@ -90,6 +114,9 @@ public class DynamicCamera : MonoBehaviour
 
         public override void Update()
         {
+            if (isSplit)
+                return;
+
             //Look towards the robot
             if (robot != null && robot.transform.childCount > 0)
             {
@@ -116,9 +143,10 @@ public class DynamicCamera : MonoBehaviour
             mono.transform.position = currentPosition;
         }
 
-
         public override void End()
         {
+            if (isSplit)
+                ToggleSplitView();
         }
     }
 
