@@ -648,8 +648,9 @@ public class DynamicCamera : MonoBehaviour
     public class SateliteState : CameraState
     {
         Vector3 targetPosition;
-        Vector3 rotationVector;
-        public GameObject target;
+        public GameObject target = GameObject.Find("Robot");
+        public Vector3 targetOffset = new Vector3(0f, 6f, 0f);
+        public Vector3 rotationVector = new Vector3(90f, 90f, 0f);
 
         public SateliteState(MonoBehaviour mono)
         {
@@ -658,9 +659,8 @@ public class DynamicCamera : MonoBehaviour
 
         public override void Init()
         {
-            target = GameObject.Find("Robot");
             targetPosition = target.transform.position;
-            rotationVector = new Vector3(90f, 90f, 0f);
+            mono.transform.position = targetPosition + targetOffset;
             mono.transform.rotation = Quaternion.Euler(rotationVector);
         }
 
@@ -669,9 +669,14 @@ public class DynamicCamera : MonoBehaviour
             if (target != null && target.transform.childCount > 0)
             {
                 targetPosition = target.transform.GetChild(0).transform.position;
-
             }
-            mono.transform.position = targetPosition + new Vector3(0f, 6f, 0f);
+            else if (target != null)
+            {
+                targetPosition = target.transform.position;
+            }
+
+            mono.transform.position = targetPosition + targetOffset;
+            mono.transform.rotation = Quaternion.Euler(rotationVector);
         }
 
         public override void End()
@@ -680,6 +685,56 @@ public class DynamicCamera : MonoBehaviour
         }
     }
 
+    //This state locates directly above the target and follows it with an orthographic view
+    public class OrthographicSateliteState : CameraState
+    {
+        Vector3 targetPosition;
+        public GameObject target = GameObject.Find("Robot");
+        public Vector3 targetOffset = new Vector3(0f, 6f, 0f);
+        public Vector3 rotationVector = new Vector3(90f, 90f, 0f);
+        public float orthoSize = 5;
+
+        public OrthographicSateliteState(MonoBehaviour mono)
+        {
+            this.mono = mono;
+        }
+
+        public override void Init()
+        {
+            targetPosition = target.transform.position;
+
+            mono.transform.position = targetPosition + targetOffset;
+            mono.transform.rotation = Quaternion.Euler(rotationVector);
+
+            mono.GetComponent<Camera>().orthographic = true;
+            mono.GetComponent<Camera>().orthographicSize = orthoSize;
+        }
+
+        public override void Update()
+        {
+            if (target != null && target.transform.childCount > 0)
+            {
+                targetPosition = target.transform.GetChild(0).transform.position;
+            }
+            else if (target != null)
+            {
+                targetPosition = target.transform.position;
+            }
+
+            mono.transform.position = targetPosition + targetOffset;
+            mono.transform.rotation = Quaternion.Euler(rotationVector);
+
+            mono.GetComponent<Camera>().orthographic = true;
+            mono.GetComponent<Camera>().orthographicSize = orthoSize;
+        }
+
+        public override void End()
+        {
+            mono.GetComponent<Camera>().orthographic = false;
+        }
+    }
+
+    //public class CameraConfigurationState : CameraState
     /// <summary>
     /// This state is made for sensor/robot camera configuration, will focus a given target object or by default on the first robot node
     /// Works basically the same as orbit view but focus closer

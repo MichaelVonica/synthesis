@@ -160,8 +160,8 @@ class RobotCameraGUI : MonoBehaviour
                 robotCameraManager.CurrentCamera.SetActive(true);
                 robotCameraManager.CurrentCamera.GetComponent<Camera>().targetTexture = robotCameraView;
                 //Toggle the robot camera using Z (can be changed later)
-                if (Input.GetKeyDown(KeyCode.Z))
-                {
+                if (Robot.ControlsEnabled && Input.GetKeyDown(KeyCode.Z))
+                    {
                     //Reset the targetTexture of current camera or they will conflict
                     robotCameraManager.CurrentCamera.GetComponent<Camera>().targetTexture = null;
                     robotCameraManager.ToggleCamera();
