@@ -68,7 +68,7 @@ public class DriverPracticeRobot : MonoBehaviour
 
     //for gamepiece spawn and goal customizability
     private Scoreboard scoreboard; // Given to newly created goals for adding points
-    private List<UnityEngine.Vector3> gamepieceSpawn;
+    public List<UnityEngine.Vector3> gamepieceSpawn { get; private set; } // Need outside access for scoring
     private List<List<UnityEngine.Vector3>> gamepieceGoals;
     private List<List<float>> gamepieceGoalSizes;
     private List<List<int>> gamepieceGoalPoints;
@@ -500,6 +500,14 @@ public class DriverPracticeRobot : MonoBehaviour
             {
                 Destroy(g);
             }
+        }
+    }
+
+    public void RemoveGamepiece(GameObject g)
+    {
+        for (int i = 0; i<spawnedGamepieces.Count; i++)
+        {
+            if (spawnedGamepieces[i].Contains(g)) spawnedGamepieces[i].Remove(g);
         }
     }
 

@@ -406,6 +406,10 @@
     <Compile Include="Assets\BulletUnity\Scripts\SoftBody\BSoftBodyRope.cs" />
     <Compile Include="Assets\BulletUnity\Scripts\SoftBody\BSoftBodyWMesh.cs" />
     <Compile Include="Assets\BulletUnity\Scripts\SoftBody\SBSettings.cs" />
+    <Compile Include="Assets\DragGameObject.cs" />
+    <Compile Include="Assets\ScoreZoneActive.cs" />
+    <Compile Include="Assets\ScoreZoneCollisionDetection.cs" />
+    <Compile Include="Assets\ScoreZoneSimManager.cs" />
     <Compile Include="Assets\Scripts\BUExtensions\BBallSocketConstraintEx.cs" />
     <Compile Include="Assets\Scripts\BUExtensions\BHingedConstraintEx.cs" />
     <Compile Include="Assets\Scripts\BUExtensions\BMultiCallbacks.cs" />
@@ -422,6 +426,7 @@
     <Compile Include="Assets\Scripts\Driver Practice Mode\DriverPracticeMode.cs" />
     <Compile Include="Assets\Scripts\Driver Practice Mode\DriverPracticeRobot.cs" />
     <Compile Include="Assets\Scripts\Driver Practice Mode\GamepieceGoal.cs" />
+    <Compile Include="Assets\Scripts\Driver Practice Mode\GamePieceRememberSpawnParams.cs" />
     <Compile Include="Assets\Scripts\Driver Practice Mode\GameplayTimer.cs" />
     <Compile Include="Assets\Scripts\Driver Practice Mode\GoalDisplayManager.cs" />
     <Compile Include="Assets\Scripts\Driver Practice Mode\Interactor.cs" />
@@ -503,6 +508,14 @@
     <Compile Include="Assets\Scripts\Robot Camera\RobotCameraGUI.cs" />
     <Compile Include="Assets\Scripts\Robot Camera\RobotCameraManager.cs" />
     <Compile Include="Assets\Scripts\Robot.cs" />
+    <Compile Include="Assets\Scripts\RobotFieldLoader.cs" />
+    <Compile Include="Assets\Scripts\ScoreZoneEdit\ArrowDragger.cs" />
+    <Compile Include="Assets\Scripts\ScoreZoneEdit\EditScoreZoneState.cs" />
+    <Compile Include="Assets\Scripts\ScoreZoneEdit\ScoreZoneManipulatorManager.cs" />
+    <Compile Include="Assets\Scripts\ScoreZoneEdit\ScoreZonePrefUIManager.cs" />
+    <Compile Include="Assets\Scripts\ScoreZoneEdit\ScoreZoneSelectableManager.cs" />
+    <Compile Include="Assets\Scripts\ScoreZoneEdit\ScoreZoneSelectible.cs" />
+    <Compile Include="Assets\Scripts\ScoreZoneEdit\ScoreZoneSettingsContainer.cs" />
     <Compile Include="Assets\Scripts\Sensors\BeamBreaker.cs" />
     <Compile Include="Assets\Scripts\Sensors\Gyro.cs" />
     <Compile Include="Assets\Scripts\Sensors\SensorBase.cs" />

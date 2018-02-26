@@ -17,3 +17,6 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scene.unity
     guid: 6e74e8f461e214e4db23879c93e9f6ed
+  - enabled: 1
+    path: Assets/EditScoreZones.unity
+    guid: 84500379b3abe834eb8c26f868917ad8

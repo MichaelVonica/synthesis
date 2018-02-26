@@ -329,8 +329,23 @@ public class MainMenu : MonoBehaviour
         fieldBrowser.Active = true;
     }
 
-    //Switches to the robot directory browser
-    public void SwitchRobotDir()
+    /// <summary>
+    /// Switches to the EditScoreZones scene
+    /// </summary>
+    public void SwitchScoreZoneEditor()
+    {
+        SelectSimField();
+        customfieldon = true;
+        homeTab.SetActive(false);
+        simTab.SetActive(false);
+        optionsTab.SetActive(false);
+        fieldBrowser.Active = false;
+        splashScreen.SetActive(true);
+        SceneManager.LoadScene("EditScoreZones");
+    }
+
+//Switches to the robot directory browser
+public void SwitchRobotDir()
     {
         currentTab = Tab.RobotDir;
 
@@ -384,7 +399,16 @@ public class MainMenu : MonoBehaviour
         else UserMessageManager.Dispatch("No Robot/Field Selected!", 2);
     }
 
-
+    public void StartScoreZoneEditor()
+    {
+        if (Directory.Exists(simSelectedField))
+        {
+            splashScreen.SetActive(true);
+            PlayerPrefs.SetString("simSelectedField", simSelectedField);
+            PlayerPrefs.SetString("simSelectedFieldName", simSelectedFieldName);
+            Application.LoadLevel("EditScoreZones");
+        }
+    }
 
     #region Main Tab Button Methods
 

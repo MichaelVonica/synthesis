@@ -9,7 +9,7 @@ using System;
 
 public class DriverPracticeMode : MonoBehaviour {
 
-    private DriverPracticeRobot dpmRobot;
+    public DriverPracticeRobot dpmRobot { get; private set; } // need direct access for low-level instantiation w/ scoring
     private Scoreboard scoreboard;
     private GameplayTimer timer;
     private SimUI simUI;
